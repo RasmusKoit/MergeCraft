@@ -1,0 +1,31 @@
+name: MergeCraft
+main: eu.ialbhost.mergecraft.MergeCraft
+version: 1.0.0
+api-version: 1.16
+website: https://ialbhost.eu
+author: Rasmus Koit
+description: MergeCraft game
+commands:
+  points:
+    description: Check your earned points in MergeCraft, can be used for various activites
+    usage: /points
+permissions:
+  mergecraft.points:
+    description: Allows the player to use points
+    default: true
+    children:
+      mergecraft.points.use: true
+      mergecraft.points.give: true
+      mergecraft.points.other: true
+  mergecraft.points.use:
+    description: Allows the player to use /points command
+  mergecraft.points.give:
+    description: Allows the player to give points away to others
+  mergecraft.points.other:
+    description: Allows the player to check other player points
+
+  mergecraft.*:
+    description: Gives access to all MergeCraft permissions
+    default: op
+    children:
+      mergecraft.points: true
