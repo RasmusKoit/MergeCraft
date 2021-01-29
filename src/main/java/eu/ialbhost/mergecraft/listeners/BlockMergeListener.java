@@ -1,5 +1,7 @@
 package eu.ialbhost.mergecraft.listeners;
 
+import eu.ialbhost.mergecraft.MergeCraft;
+import eu.ialbhost.mergecraft.Recipe;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -11,6 +13,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import java.util.*;
 
 public class BlockMergeListener implements Listener {
+    private MergeCraft plugin;
+    public BlockMergeListener(MergeCraft plugin) {
+        this.plugin = plugin;
+    }
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block placedBlock = event.getBlock();
@@ -18,24 +25,30 @@ public class BlockMergeListener implements Listener {
     }
 
     public void mergeNeeded(Block placed, Player player) {
-        Set<Block> foundBlocks = new HashSet<>();
-        foundBlocks.add(placed);
+        // TODO:
+        //  Check if block material has a recipe
+        //  Based on match merge blocks
+    }
 
-        for (int x = -2; x <= 2; x++) {
-            for (int z = -2; z <= 2; z++) {
-                if(placed.getType() == placed.getRelative(x, 0, z).getType()) {
-                    foundBlocks.add(placed.getRelative(x, 0, z));
-                    player.sendMessage("Found a match");
+    public Set<Block> findBlocks(Block placed) {
+        Set<Block> foundBlocks = new HashSet<>(); // blocks we find with algorithm
+        Set<Block> searchedBlocks = new HashSet<>(); // blocks we have finished searching
+        foundBlocks.add(placed);
+        final BlockFace[] directions = {BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST};
+        while ((foundBlocks.iterator().hasNext()) && (searchedBlocks.size() < 256)) { // hard limit our search to 1 chunk
+            Block foundBlock = foundBlocks.iterator().next();
+            for (BlockFace direction : directions) {
+                if (foundBlock.getRelative(direction).getType() == placed.getType()) {
+                    if (!searchedBlocks.contains(foundBlock.getRelative(direction))) {
+                        foundBlocks.add(foundBlock.getRelative(direction));
+                    }
                 }
             }
+            searchedBlocks.add(foundBlock);
+            foundBlocks.remove(foundBlock);
         }
-        if (foundBlocks.size() >= 3 && placed.getType() == Material.POPPY) {
-            player.sendMessage("Found 3 or more");
-            for (Block block : foundBlocks) {
-                block.setType(Material.AIR);
-            }
-            placed.setType(Material.RED_TULIP);
-        }
+        return searchedBlocks;
+
     }
 
 

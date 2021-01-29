@@ -1,1 +1,3 @@
 recipes:
+  - POPPY=RED_TULIP
+  - RED_TULIP=ORANGE_TULIP

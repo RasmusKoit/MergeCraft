@@ -3,44 +3,64 @@ package eu.ialbhost.mergecraft;
 import eu.ialbhost.mergecraft.commands.Points;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class MergeCraft extends JavaPlugin {
-//    private static Economy econ = null;
     private final Logger log = this.getLogger();
+    private FileConfiguration customConfig = null;
+
+    public FileConfiguration getRecipesConfig() {
+        return customConfig;
+    }
+
 
     @Override
     public void onDisable(){
         log.log(Level.INFO, "Disabled version %s", getDescription().getVersion());
     }
+
     @Override
     public void onEnable() {
-//        if (!setupEconomy() ) {
-
-        //
-//            getServer().getPluginManager().disablePlugin(this);
-//        }
-
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
-        getServer().getPluginManager().registerEvents(new BlockMergeListener(), this);
+        getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
+        reloadCustomConfig();
+
 
         registerCommand("points", new Points(this));
 
 
+    }
+
+    public void reloadCustomConfig() {
+        File customConfigFile = new File(getDataFolder(), "recipes.yml");
+        customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
+        InputStream config = this.getResource("recipes.yml");
+        if (config == null) {
+            log.log(Level.SEVERE, "Error loading default config from plugin, disabling plugin");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        try (Reader defConfigStream = new InputStreamReader(config, StandardCharsets.UTF_8)) {
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+            customConfig.setDefaults(defConfig);
+        } catch (IOException exception) {
+            log.log(Level.SEVERE, "Error loading config", exception);
+        }
     }
 
     private void registerCommand(String name, CommandExecutor executor) {
@@ -54,18 +74,6 @@ public class MergeCraft extends JavaPlugin {
             command.setTabCompleter((TabCompleter) executor);
         }
     }
-
-//    private boolean setupEconomy() {
-//        if (getServer().getPluginManager().getPlugin("Vault") == null) {
-//            return false;
-//        }
-//        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-//        if (rsp == null) {
-//            return false;
-//        }
-//        econ = rsp.getProvider();
-//        return true;
-//    }
 
 
     public boolean checkPlayer(CommandSender sender) {
@@ -90,7 +98,4 @@ public class MergeCraft extends JavaPlugin {
     }
 
 
-//    public static Economy getEconomy() {
-//        return econ;
-//    }
 }
