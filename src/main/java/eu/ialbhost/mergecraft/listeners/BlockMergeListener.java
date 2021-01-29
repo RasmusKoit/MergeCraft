@@ -18,7 +18,9 @@ public class BlockMergeListener implements Listener {
     }
 
     public void mergeNeeded(Block placed, Player player) {
-        Set<Block> foundBlocks = new HashSet<>() {{add(placed);}};
+        Set<Block> foundBlocks = new HashSet<>();
+        foundBlocks.add(placed);
+
         for (int x = -2; x <= 2; x++) {
             for (int z = -2; z <= 2; z++) {
                 if(placed.getType() == placed.getRelative(x, 0, z).getType()) {

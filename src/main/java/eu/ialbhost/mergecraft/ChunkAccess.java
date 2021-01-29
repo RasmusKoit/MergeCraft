@@ -3,32 +3,31 @@ package eu.ialbhost.mergecraft;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 public class ChunkAccess {
-    private Player player;
-    private List<Chunk> chunks;
+    final private Player player;
+    private HashSet<Chunk> chunks;
+
 
     public ChunkAccess(Player player) {
-        this.player = player;
-        this.chunks = new ArrayList<>();
+        this(player, new HashSet<>());
     }
 
-    public ChunkAccess(Player player, List<Chunk> chunks) {
+    public ChunkAccess(Player player, HashSet<Chunk> chunks) {
         this.player = player;
         this.chunks = chunks;
     }
 
     public Player getPlayer() {
-        return player;
+        return this.player;
     }
 
-    public List<Chunk> getChunks() {
-        return chunks;
+    public HashSet<Chunk> getChunks() {
+        return this.chunks;
     }
 
-    public void setChunks(List<Chunk> chunks) {
+    public void setChunks(HashSet<Chunk> chunks) {
         this.chunks = chunks;
     }
 
@@ -37,10 +36,8 @@ public class ChunkAccess {
     }
 
     public boolean hasAccess(Chunk searchChunk) {
-        try {
-            return chunks.contains(searchChunk);
-        } catch (NullPointerException err) {
-            return false;
-        }
+
+        return chunks.contains(searchChunk);
+
     }
 }

@@ -5,37 +5,54 @@ import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
 public class MergeCraft extends JavaPlugin {
-    private static final Logger log = Logger.getLogger("Minecraft");
 //    private static Economy econ = null;
+    private final Logger log = this.getLogger();
 
     @Override
     public void onDisable(){
-        log.info(String.format("[%s] Disabled Version %s", getDescription().getName(), getDescription().getVersion()));
+        log.log(Level.INFO, "Disabled version %s", getDescription().getVersion());
     }
     @Override
     public void onEnable() {
 //        if (!setupEconomy() ) {
-//            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+
+        //
 //            getServer().getPluginManager().disablePlugin(this);
 //        }
-        log.info(String.format("[%s] version %s has been enabled!", getDescription().getName(), getDescription().getVersion()));
+
         getServer().getPluginManager().registerEvents(new PlayerListener(), this);
         getServer().getPluginManager().registerEvents(new BlockMergeListener(), this);
 
-        getCommand("points").setExecutor(new Points(this));
+        registerCommand("points", new Points(this));
 
 
+    }
+
+    private void registerCommand(String name, CommandExecutor executor) {
+        PluginCommand command = this.getCommand(name);
+        if (command == null) {
+            log.log(Level.WARNING, "This command: " + name + " is not found in plugin.yml");
+            return;
+        }
+        command.setExecutor(executor);
+        if (executor instanceof TabCompleter) {
+            command.setTabCompleter((TabCompleter) executor);
+        }
     }
 
 //    private boolean setupEconomy() {

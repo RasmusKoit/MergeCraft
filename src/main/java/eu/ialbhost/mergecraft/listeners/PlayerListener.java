@@ -33,7 +33,7 @@ public final class PlayerListener implements Listener {
                 player.sendMessage("You can access this chunk");
             } else {
                 player.sendMessage("You CANT access this chunk");
-                player.teleport(fromLocation);
+                event.setCancelled(true);
             }
         }
     }
@@ -42,7 +42,7 @@ public final class PlayerListener implements Listener {
         Bukkit.broadcastMessage("Player: " + event.getPlayer().getDisplayName());
         chunkAccess = new ChunkAccess(event.getPlayer());
         Chunk currentChunk = event.getPlayer().getChunk();
-        if(chunkAccess.getChunks().size() == 0) {
+        if(chunkAccess.getChunks().isEmpty()) {
             chunkAccess.addChunk(currentChunk);
         }
     }
