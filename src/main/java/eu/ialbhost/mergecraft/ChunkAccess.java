@@ -1,6 +1,7 @@
 package eu.ialbhost.mergecraft;
 
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;

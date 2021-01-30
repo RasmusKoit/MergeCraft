@@ -67,6 +67,7 @@ public class MergeCraft extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
         try (Reader defConfigStream = new InputStreamReader(config, StandardCharsets.UTF_8)) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
             customConfig.setDefaults(defConfig);
