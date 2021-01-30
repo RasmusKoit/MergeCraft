@@ -1,0 +1,4 @@
+world:
+  dispenser:
+    bonemeal:
+      allow: false

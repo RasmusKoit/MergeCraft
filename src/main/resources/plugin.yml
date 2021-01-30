@@ -24,8 +24,13 @@ permissions:
   mergecraft.points.other:
     description: Allows the player to check other player points
 
+  mergecraft.use.bonemeal:
+    description: Allows the player to use bonemeal
+    default: op
+
   mergecraft.*:
     description: Gives access to all MergeCraft permissions
     default: op
     children:
       mergecraft.points: true
+      mergecraft.use.bonemeal: true

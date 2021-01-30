@@ -3,6 +3,7 @@ package eu.ialbhost.mergecraft;
 import eu.ialbhost.mergecraft.commands.Points;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
+import eu.ialbhost.mergecraft.listeners.WorldListener;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,6 +24,7 @@ import java.util.logging.Logger;
 public class MergeCraft extends JavaPlugin {
     private final Logger log = this.getLogger();
     private FileConfiguration customConfig = null;
+    private Recipe recipe;
 
     public FileConfiguration getRecipesConfig() {
         return customConfig;
@@ -36,18 +38,28 @@ public class MergeCraft extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+        reloadConfigs();
+        loadRecipes();
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
-        reloadCustomConfig();
-
-
+        getServer().getPluginManager().registerEvents(new WorldListener(this), this);
         registerCommand("points", new Points(this));
 
 
     }
 
-    public void reloadCustomConfig() {
+    public void loadRecipes() {
+        this.recipe = new Recipe(this);
+    }
+
+    public void reloadConfigs() {
+        saveDefaultConfig();
+        getConfig().options().copyDefaults(false);
+        saveConfig();
         File customConfigFile = new File(getDataFolder(), "recipes.yml");
+        if(!customConfigFile.exists()) {
+            saveResource("recipes.yml", false);
+        }
         customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
         InputStream config = this.getResource("recipes.yml");
         if (config == null) {
@@ -95,6 +107,10 @@ public class MergeCraft extends JavaPlugin {
             player = players.get(0);
         }
         return player;
+    }
+
+    public Recipe getRecipe() {
+        return recipe;
     }
 
 

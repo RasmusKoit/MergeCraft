@@ -5,17 +5,25 @@ import eu.ialbhost.mergecraft.MergeCraft;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.logging.Level;
+
 
 public final class PlayerListener implements Listener {
     ChunkAccess chunkAccess;
+    private final MergeCraft plugin;
+    public PlayerListener (MergeCraft plugin) {
+        this.plugin = plugin;
+    }
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
 
@@ -37,6 +45,23 @@ public final class PlayerListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onPlayerClick(PlayerInteractEvent event) {
+        if(!event.getPlayer().hasPermission("mergecraft.use.bonemeal")) {
+            if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                Player player = event.getPlayer();
+                if(player.getInventory().getItemInMainHand().getType().equals(Material.BONE_MEAL)) {
+                    event.getPlayer().sendMessage("Cant use bonemeal");
+                    event.setCancelled(true);
+                } else if (player.getInventory().getItemInOffHand().getType().equals(Material.BONE_MEAL)) {
+                    event.getPlayer().sendMessage("Cant use bonemeal");
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onServerJoin(PlayerJoinEvent event) {
         Bukkit.broadcastMessage("Player: " + event.getPlayer().getDisplayName());

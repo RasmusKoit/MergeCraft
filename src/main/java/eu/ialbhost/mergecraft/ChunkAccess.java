@@ -35,9 +35,12 @@ public class ChunkAccess {
         this.chunks.add(chunk);
     }
 
+    public void removeChunk(Chunk chunk) {
+        this.chunks.remove(chunk);
+    }
+
+
     public boolean hasAccess(Chunk searchChunk) {
-
-        return chunks.contains(searchChunk);
-
+        return this.chunks.contains(searchChunk);
     }
 }
