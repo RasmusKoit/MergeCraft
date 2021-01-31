@@ -26,12 +26,21 @@ public class Points implements CommandExecutor {
         User targetUser = null;
         double amount = 0;
         //args checking
+        if (!sender.hasPermission("mergecraft.points.use")) {
+            sender.sendMessage("You don't have permission to use /points command");
+            return true;
+        }
         if (args.length >= 1) {
             targetPlayer = plugin.matchPlayer(args);
+            if (!sender.hasPermission("mergecraft.points.other") && !targetPlayer.equals(sender)) {
+                sender.sendMessage("You don't have permission to check others points");
+                return true;
+            }
             if (targetPlayer == null) {
                 sender.sendMessage("Player not found");
                 return false;
             }
+
             targetUser = plugin.matchUser(targetPlayer);
             if (targetUser == null) {
                 sender.sendMessage("Player not found");
@@ -40,6 +49,14 @@ public class Points implements CommandExecutor {
 
         }
         if (args.length == 2) {
+            if (!sender.hasPermission("mergecraft.points.give")) {
+                sender.sendMessage("You don't have permission to use /points command");
+                return true;
+            }
+            if (targetPlayer.equals(sender)) {
+                sender.sendMessage("You are trying to send yourself points");
+                return true;
+            }
             try {
                 amount = Double.parseDouble(args[1]);
             } catch (NumberFormatException exception) {
