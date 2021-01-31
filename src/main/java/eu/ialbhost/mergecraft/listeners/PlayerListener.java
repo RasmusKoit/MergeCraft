@@ -1,26 +1,22 @@
 package eu.ialbhost.mergecraft.listeners;
 
-import eu.ialbhost.mergecraft.ChunkAccess;
 import eu.ialbhost.mergecraft.MergeCraft;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
+import eu.ialbhost.mergecraft.User;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import java.util.logging.Level;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 
 public final class PlayerListener implements Listener {
-    ChunkAccess chunkAccess;
     private final MergeCraft plugin;
+//    private final UserDAO dao;
     public PlayerListener (MergeCraft plugin) {
         this.plugin = plugin;
     }
@@ -28,16 +24,12 @@ public final class PlayerListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
 
         Player player = event.getPlayer();
-        //temp chunkaccess generator
-        if (chunkAccess == null) {
-            chunkAccess = new ChunkAccess(player);
-            chunkAccess.addChunk(player.getChunk());
-        }
+        User user = plugin.matchUser(player);
         Location toLocation = event.getTo();
         Location fromLocation = event.getFrom();
 
         if (fromLocation.getChunk() != toLocation.getChunk()) {
-            if (chunkAccess.hasAccess(toLocation.getChunk())) {
+            if (user.hasChunk(toLocation.getChunk())) {
                 player.sendMessage("You can access this chunk");
             } else {
                 player.sendMessage("You CANT access this chunk");
@@ -64,11 +56,19 @@ public final class PlayerListener implements Listener {
 
     @EventHandler
     public void onServerJoin(PlayerJoinEvent event) {
-        Bukkit.broadcastMessage("Player: " + event.getPlayer().getDisplayName());
-        chunkAccess = new ChunkAccess(event.getPlayer());
-        Chunk currentChunk = event.getPlayer().getChunk();
-        if(chunkAccess.getChunks().isEmpty()) {
-            chunkAccess.addChunk(currentChunk);
+        //Initialize player
+        Player player = event.getPlayer();
+        User user = User.getSQLUser(player);
+        if (user == null) { // user wasn't found in DB, lets add him to DB
+            user = User.initSQLUser(player);
         }
+        plugin.addUser(user);
+        event.getPlayer().sendMessage(user.getChunks().toString());
+    }
+
+    @EventHandler
+    public void onServerLeave(PlayerQuitEvent event) {
+        User user = plugin.matchUser(event.getPlayer());
+        plugin.removeUser(user);
     }
 }
