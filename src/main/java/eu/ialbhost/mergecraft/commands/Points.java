@@ -20,10 +20,11 @@ public class Points implements CommandExecutor {
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
         if (args.length > 2) return false; // too long
         if (plugin.checkPlayer(sender) && args.length == 0) return false; //console execution
+
         sender.sendMessage("Total users size: " + plugin.getUsers().size());
         User user = plugin.matchUser((Player) sender);
-        Player targetPlayer = null;
-        User targetUser = null;
+        Player targetPlayer = plugin.matchPlayer(args);
+        User targetUser = plugin.matchUser(targetPlayer);
         double amount = 0;
         //args checking
         if (!sender.hasPermission("mergecraft.points.use")) {
@@ -31,7 +32,6 @@ public class Points implements CommandExecutor {
             return true;
         }
         if (args.length >= 1) {
-            targetPlayer = plugin.matchPlayer(args);
             if (!sender.hasPermission("mergecraft.points.other") && !targetPlayer.equals(sender)) {
                 sender.sendMessage("You don't have permission to check others points");
                 return true;
@@ -41,13 +41,13 @@ public class Points implements CommandExecutor {
                 return false;
             }
 
-            targetUser = plugin.matchUser(targetPlayer);
             if (targetUser == null) {
                 sender.sendMessage("Player not found");
                 return false;
             }
 
         }
+        // todo this and the upper block can both be called. is this intentional?
         if (args.length == 2) {
             if (!sender.hasPermission("mergecraft.points.give")) {
                 sender.sendMessage("You don't have permission to use /points command");
@@ -70,6 +70,7 @@ public class Points implements CommandExecutor {
         }
 
         // output
+        // todo repeated conditions. maybe you can merge something?
         if (args.length >= 1) {
             if (args.length == 2) {
                 // take senders points away
@@ -89,6 +90,5 @@ public class Points implements CommandExecutor {
 
     public boolean has(User user, double amount) {
         return user.getPoints() - amount >= 0;
-
     }
 }
