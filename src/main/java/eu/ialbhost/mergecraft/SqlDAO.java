@@ -10,6 +10,7 @@ public class SqlDAO {
     private static final HikariDataSource ds;
     private static final HikariConfig config = new HikariConfig();
 
+    // TODO: never show passwords in git, use something safer
     static {
         config.setJdbcUrl("jdbc:mysql://eu.1.node.ialbhost.eu:3306/s14_mergecraft");
         config.setUsername("u14_JjdGCUZRel");

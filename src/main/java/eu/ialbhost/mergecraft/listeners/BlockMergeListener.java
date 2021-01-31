@@ -15,8 +15,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BlockMergeListener implements Listener {
+    private static final Set<BlockFace> DIRECTIONS = Set.of(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
+
     private final MergeCraft plugin;
     private final Recipe recipe;
     private final Experience exp = new Experience();
@@ -37,7 +40,7 @@ public class BlockMergeListener implements Listener {
     public void mergeIfNeeded(Block placed, Player player) {
         String placedBlockName = placed.getType().toString();
         Set<Block> searchedBlocks = findBlocks(placed);
-        LinkedHashMap<Integer, Integer> merge = findMergeAmount(searchedBlocks);
+        Map<Integer, Integer> merge = findMergeAmount(searchedBlocks);
         if (merge != null) {
             int key = merge.keySet().iterator().next();
             int value = merge.get(key);
@@ -61,37 +64,38 @@ public class BlockMergeListener implements Listener {
 
     }
 
-
-    private LinkedHashMap<Integer, Integer> findMergeAmount(Set<Block> searchedBlocks) {
+    private Map<Integer, Integer> findMergeAmount(Set<Block> searchedBlocks) {
         if (searchedBlocks.size() < 3) return null;
-        LinkedHashMap<Integer, Integer> found = new LinkedHashMap<>();
-        int mergeAmountKey = 0;
-        List<String> recipeMergeAmountsList = recipe.getMergeAmounts();
-        Map<Integer, Integer> mergeMapList = new HashMap<>();
-        for (String elem : recipeMergeAmountsList) {
-            mergeMapList.put(Integer.valueOf(elem.split("=")[0]), Integer.valueOf(elem.split("=")[1]));
+
+
+        Map<Integer, Integer> mergeMap = new HashMap<>();
+        for (String elem : recipe.getMergeAmounts()) {
+            String[] splitByEqualsSign = elem.split("=");
+            mergeMap.put(Integer.valueOf(splitByEqualsSign[0]), Integer.valueOf(splitByEqualsSign[1]));
         }
-        List<Integer> mergeByAmount = new ArrayList<>(mergeMapList.keySet());
-        Collections.sort(mergeByAmount);
-        for (Integer amount : mergeByAmount) {
-            if ((searchedBlocks.size() - amount) >= 0) {
+
+        List<Integer> mergeByAmount = mergeMap.keySet().stream()
+                .sorted()
+                .collect(Collectors.toList());
+
+        int mergeAmountKey = 0;
+        for (int amount : mergeByAmount) {
+            if (searchedBlocks.size() - amount >= 0) {
                 mergeAmountKey = amount;
             }
         }
-        int value = mergeMapList.get(mergeAmountKey);
-        found.put(mergeAmountKey, value);
-        return found;
 
+        return Map.of(mergeAmountKey, mergeMap.get(mergeAmountKey));
     }
 
-    public Set<Block> findBlocks(Block placed) {
+    public static Set<Block> findBlocks(Block placed) {
         Set<Block> foundBlocks = new HashSet<>(); // blocks we find with algorithm
         Set<Block> searchedBlocks = new HashSet<>(); // blocks we have finished searching
         foundBlocks.add(placed);
-        final BlockFace[] directions = {BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST};
+
         while ((foundBlocks.iterator().hasNext()) && (searchedBlocks.size() < 256)) { // hard limit our search to 1 chunk
             Block foundBlock = foundBlocks.iterator().next();
-            for (BlockFace direction : directions) {
+            for (BlockFace direction : DIRECTIONS) {
                 if (foundBlock.getRelative(direction).getType() == placed.getType()) {
                     if (!searchedBlocks.contains(foundBlock.getRelative(direction))) {
                         foundBlocks.add(foundBlock.getRelative(direction));
@@ -101,12 +105,12 @@ public class BlockMergeListener implements Listener {
             searchedBlocks.add(foundBlock);
             foundBlocks.remove(foundBlock);
         }
-        return searchedBlocks;
 
+        return searchedBlocks;
     }
 
 
-    private void playMergeEffect(Location location, Player player) {
+    private static void playMergeEffect(Location location, Player player) {
         double locX = location.getX() + 0.5;
         double locY = location.getY() + 0.2;
         double locZ = location.getZ() + 0.5;

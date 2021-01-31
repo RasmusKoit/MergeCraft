@@ -23,7 +23,6 @@ public class Recipe {
         recipes.put(key, value);
     }
 
-
     public void loadRecipes() {
         FileConfiguration recipeConfig = plugin.getRecipesConfig();
         List<String> recList = recipeConfig.getStringList("recipes");
@@ -31,19 +30,17 @@ public class Recipe {
 
         if (!recList.isEmpty()) {
             for (String rec : recList) {
-                String key = rec.split("=")[0];
-                Material value = Material.valueOf(rec.split("=")[1]);
-                addRecipe(key, value);
+                String[] splitByEqualsSign = rec.split("=");
+                addRecipe(splitByEqualsSign[0], Material.valueOf(splitByEqualsSign[1]));
             }
         }
-
     }
-
 
     public Material getRecipe(String key) {
         return recipes.get(key);
     }
 
+    // TODO parameter not used
     public double getMaterialExp(Material material) {
         return 1.0;
     }
@@ -55,6 +52,4 @@ public class Recipe {
     public List<String> getMergeAmounts() {
         return mergeAmounts;
     }
-
-
 }

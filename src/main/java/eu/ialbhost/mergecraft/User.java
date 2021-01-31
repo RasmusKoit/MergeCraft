@@ -12,13 +12,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class User {
-    private final static Gson gson = new Gson();
+    private final static Gson GSON = new Gson();
+
     private final Experience exp = new Experience();
     private final Player player;
     private Double points;
-    private HashSet<Chunk> chunks;
+    private Set<Chunk> chunks;
     private Double level;
     private Double currentExp;
     private Double neededExp;
@@ -29,7 +31,7 @@ public class User {
         this(player, 0.0, new HashSet<>(), 1.0, 0.0, 100.0, 1.0);
     }
 
-    public User(Player player, Double points, HashSet<Chunk> chunks, Double level, Double currentExp, Double neededExp, Double multiplier) {
+    public User(Player player, Double points, Set<Chunk> chunks, Double level, Double currentExp, Double neededExp, Double multiplier) {
         this.player = player;
         this.points = points;
         if (chunks.isEmpty()) {
@@ -43,52 +45,52 @@ public class User {
     }
 
     public static User getSQLUser(Player player) {
-        String sqlString = String.format("SELECT * FROM USER WHERE UUID='%s'", player.getUniqueId().toString());
+        String sqlString = "SELECT * FROM USER WHERE UUID = ?";
         User user = null;
-        try (
-                Connection con = SqlDAO.getConnection();
-                PreparedStatement pst = con.prepareStatement(sqlString);
-                ResultSet rs = pst.executeQuery()
-        ) {
+        try (Connection con = SqlDAO.getConnection()) {
+            PreparedStatement pst = con.prepareStatement(sqlString);
+            pst.setString(1, player.getUniqueId().toString());
+            ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 user = new User(player);
                 user.populate(rs, player);
-
             }
-
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
         return user;
     }
 
-    public static String chunksToStr(HashSet<Chunk> chunks) {
-//        HashSet<Chunk> chunks = user.getChunks();
+    public static String chunksToStr(Set<Chunk> chunks) {
         List<ChunkData> chunkDataList = new ArrayList<>();
         for (Chunk chunk : chunks) {
             ChunkData data = new ChunkData(chunk.getX(), chunk.getZ());
             chunkDataList.add(data);
         }
-        return gson.toJson(chunkDataList);
+        return GSON.toJson(chunkDataList);
     }
 
     public static User initSQLUser(Player player) {
         User user = new User(player);
-        String sqlString = String.format("""
-                        INSERT INTO USER
-                            (UUID, POINTS, CHUNKS, LEVEL, CURRENT_EXP, NEEDED_EXP, MULTIPLIER)\s
-                            VALUES ('%s', %s, '%s', %s, %s, %s, %s);""",
-                user.getPlayer().getUniqueId().toString(), user.getPoints(), chunksToStr(user.getChunks()), user.getLevel(),
-                user.getCurrentExp(), user.getNeededExp(), user.getMultiplier());
-        try (
-                Connection con = SqlDAO.getConnection();
-                PreparedStatement pst = con.prepareStatement(sqlString)
-        ) {
+        String sqlString = """
+                INSERT INTO USER
+                (UUID, POINTS, CHUNKS, LEVEL, CURRENT_EXP, NEEDED_EXP, MULTIPLIER) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)""";
+        try (Connection con = SqlDAO.getConnection()) {
+            PreparedStatement pst = con.prepareStatement(sqlString);
+            pst.setString(1, user.getPlayer().getUniqueId().toString());
+            pst.setDouble(2, user.getPoints());
+            pst.setString(3, chunksToStr(user.getChunks()));
+            pst.setDouble(4, user.getLevel());
+            pst.setDouble(5, user.getCurrentExp());
+            pst.setDouble(6, user.getNeededExp());
+            pst.setDouble(7, user.getMultiplier());
             pst.executeUpdate();
 
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+
         return user;
     }
 
@@ -136,11 +138,11 @@ public class User {
         this.multiplier = multiplier;
     }
 
-    public HashSet<Chunk> getChunks() {
+    public Set<Chunk> getChunks() {
         return chunks;
     }
 
-    public void setChunks(HashSet<Chunk> chunks) {
+    public void setChunks(Set<Chunk> chunks) {
         this.chunks = chunks;
     }
 
@@ -151,7 +153,7 @@ public class User {
         setNeededExp(rs.getDouble("NEEDED_EXP"));
         setMultiplier(rs.getDouble("MULTIPLIER"));
         HashSet<Chunk> chunkSet = new HashSet<>();
-        ChunkData[] chunkData = gson.fromJson(rs.getString("CHUNKS"), (Type) ChunkData[].class);
+        ChunkData[] chunkData = GSON.fromJson(rs.getString("CHUNKS"), (Type) ChunkData[].class);
         for (ChunkData data : chunkData) {
             chunkSet.add(data.toChunk(player.getWorld()));
         }
@@ -160,13 +162,13 @@ public class User {
 
     public void setSQLNumber(Double amount, String col) {
         String sqlString = String.format("""
-                UPDATE USER\s
-                SET %s = %s\s
-                where UUID='%s';""", col, amount, getPlayer().getUniqueId().toString());
-        try (
-                Connection con = SqlDAO.getConnection();
-                PreparedStatement pst = con.prepareStatement(sqlString)
-        ) {
+                UPDATE USER
+                SET %s = ?
+                WHERE UUID=?""", col);
+        try (Connection con = SqlDAO.getConnection()) {
+            PreparedStatement pst = con.prepareStatement(sqlString);
+            pst.setDouble(1, amount);
+            pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
             pickNumberSetter(col, amount);
         } catch (SQLException exception) {
@@ -174,15 +176,16 @@ public class User {
         }
     }
 
-    public void setSQLChunks(HashSet<Chunk> chunkSet, String col) {
-        String sqlString = String.format("""
-                UPDATE USER\s
-                SET %s = '%s'\s
-                where UUID='%s';""", col, chunksToStr(chunkSet), getPlayer().getUniqueId().toString());
-        try (
-                Connection con = SqlDAO.getConnection();
-                PreparedStatement pst = con.prepareStatement(sqlString)
-        ) {
+    public void setSQLChunks(Set<Chunk> chunkSet, String col) {
+        String sqlString = """
+                UPDATE USER
+                SET ? = ?
+                WHERE UUID=?""";
+        try (Connection con = SqlDAO.getConnection()) {
+            PreparedStatement pst = con.prepareStatement(sqlString);
+            pst.setString(1, col);
+            pst.setString(2, chunksToStr(chunkSet));
+            pst.setString(3, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
             setChunks(chunkSet);
 
@@ -210,14 +213,14 @@ public class User {
     private boolean getNewLevel(double experience) {
         if (getLevel() <= exp.getMaxLevel()) {
             return experience + getCurrentExp() >= getNeededExp();
-        } else {
-            return false;
         }
+
+        return false;
     }
 
+    // TODO do something here
     public void addExperience(double expGained) {
-        double experienceLeft = expGained;
-        while (getNewLevel(experienceLeft)) {
+        while (getNewLevel(expGained)) {
             double newExpNeeded = exp.calcExperienceNeeded(getLevel());
 
         }

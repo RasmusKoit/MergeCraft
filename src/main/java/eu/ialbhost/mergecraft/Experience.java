@@ -12,7 +12,7 @@ public class Experience {
     }
 
     public double calculateExpEarned(User user, Double matExp, Integer count) {
-        double expGained = 0;
+        double expGained;
         expGained = ((matExp * count) * (user.getMultiplier() + 0.01 * count));
         user.addExperience(expGained);
         return expGained;

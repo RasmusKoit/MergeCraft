@@ -58,20 +58,18 @@ public class MergeCraft extends JavaPlugin {
 
     private void initializeDB() {
         String sqlString = """
-                create table IF NOT EXISTS USER (
-                    ID int auto_increment primary key,
-                    UUID VARCHAR(36) not null unique,
+                CREATE TABLE IF NOT EXISTS USER (
+                    ID int auto_increment PRIMARY KEY,
+                    UUID VARCHAR(36) NOT NULL UNIQUE,
                     POINTS double,
                     CHUNKS BLOB,
                     LEVEL double,
                     CURRENT_EXP double,
                     NEEDED_EXP double,
                     MULTIPLIER double
-                );""";
-        try (
-                Connection con = SqlDAO.getConnection();
-                PreparedStatement pst = con.prepareStatement(sqlString)
-        ) {
+                )""";
+        try (Connection con = SqlDAO.getConnection()) {
+            PreparedStatement pst = con.prepareStatement(sqlString);
             pst.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -125,20 +123,17 @@ public class MergeCraft extends JavaPlugin {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute that command, you need to be a player!");
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     public User matchUser(Player player) {
         Set<User> users = this.users;
-        User foundUser = null;
-        for (User user : users) {
-            if (user.getPlayer().equals(player)) {
-                foundUser = user;
-            }
-        }
-        return foundUser;
+        return users.stream()
+                .filter(u -> u.getPlayer().equals(player))
+                .findFirst()
+                .orElseThrow();
     }
 
     public void addUser(User user) {
@@ -154,14 +149,10 @@ public class MergeCraft extends JavaPlugin {
     }
 
     public Player matchPlayer(String[] split) {
-        Player player;
         List<Player> players = getServer().matchPlayer(split[0]);
-        if (players.isEmpty()) {
-            player = null;
-        } else {
-            player = players.get(0);
-        }
-        return player;
+        return players.isEmpty()
+                ? null
+                : players.get(0);
     }
 
     public Recipe getRecipe() {
