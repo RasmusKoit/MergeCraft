@@ -46,12 +46,13 @@ public class User {
 
     public static User getSQLUser(Player player) {
         String sqlString = "SELECT * FROM USER WHERE UUID = ?";
-        User user = new User(player);
+        User user = null;
         try (Connection con = SqlDAO.getConnection()) {
             PreparedStatement pst = con.prepareStatement(sqlString);
             pst.setString(1, player.getUniqueId().toString());
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
+                user = new User(player);
                 user.populate(rs, player);
             }
         } catch (SQLException exception) {
@@ -61,7 +62,6 @@ public class User {
     }
 
     public static String chunksToStr(Set<Chunk> chunks) {
-//        HashSet<Chunk> chunks = user.getChunks();
         List<ChunkData> chunkDataList = new ArrayList<>();
         for (Chunk chunk : chunks) {
             ChunkData data = new ChunkData(chunk.getX(), chunk.getZ());
@@ -161,15 +161,14 @@ public class User {
     }
 
     public void setSQLNumber(Double amount, String col) {
-        String sqlString = """
+        String sqlString = String.format("""
                 UPDATE USER
-                SET ? = ?
-                WHERE UUID=?""";
+                SET %s = ?
+                WHERE UUID=?""", col);
         try (Connection con = SqlDAO.getConnection()) {
             PreparedStatement pst = con.prepareStatement(sqlString);
-            pst.setString(1, col);
-            pst.setDouble(2, amount);
-            pst.setString(3, getPlayer().getUniqueId().toString());
+            pst.setDouble(1, amount);
+            pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
             pickNumberSetter(col, amount);
         } catch (SQLException exception) {

@@ -69,7 +69,7 @@ public class MergeCraft extends JavaPlugin {
                     MULTIPLIER double
                 )""";
         try (Connection con = SqlDAO.getConnection()) {
-            PreparedStatement pst = con.prepareStatement(sqlString)
+            PreparedStatement pst = con.prepareStatement(sqlString);
             pst.executeUpdate();
         } catch (SQLException exception) {
             exception.printStackTrace();

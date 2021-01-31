@@ -61,7 +61,6 @@ public final class PlayerListener implements Listener {
         //Initialize player
         Player player = event.getPlayer();
         User user = User.getSQLUser(player);
-        // TODO intelliJ says this condition is always false, check it out
         if (user == null) { // user wasn't found in DB, lets add him to DB
             user = User.initSQLUser(player);
         }
