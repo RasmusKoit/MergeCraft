@@ -1,5 +1,6 @@
 package eu.ialbhost.mergecraft.listeners;
 
+import eu.ialbhost.mergecraft.Experience;
 import eu.ialbhost.mergecraft.MergeCraft;
 import eu.ialbhost.mergecraft.Recipe;
 import org.bukkit.Color;
@@ -18,6 +19,7 @@ import java.util.*;
 public class BlockMergeListener implements Listener {
     private final MergeCraft plugin;
     private final Recipe recipe;
+    private final Experience exp = new Experience();
 
     public BlockMergeListener(MergeCraft plugin) {
         this.plugin = plugin;
@@ -51,6 +53,8 @@ public class BlockMergeListener implements Listener {
                 removeBlock.setType(Material.AIR);
                 searchedBlocks.remove(removeBlock);
             }
+            double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getMaterialExp(mergeMat), value);
+            player.sendMessage("You gained: " + xpGain);
             player.sendMessage("Merged " + placedBlockName.toLowerCase().replace("_", " ") +
                     " into " + value + " " + mergeMat.toString().toLowerCase().replace("_", " "));
         }
@@ -62,7 +66,7 @@ public class BlockMergeListener implements Listener {
         if (searchedBlocks.size() < 3) return null;
         LinkedHashMap<Integer, Integer> found = new LinkedHashMap<>();
         int mergeAmountKey = 0;
-        List<String> recipeMergeAmountsList = this.plugin.getRecipe().getMergeAmounts();
+        List<String> recipeMergeAmountsList = recipe.getMergeAmounts();
         Map<Integer, Integer> mergeMapList = new HashMap<>();
         for (String elem : recipeMergeAmountsList) {
             mergeMapList.put(Integer.valueOf(elem.split("=")[0]), Integer.valueOf(elem.split("=")[1]));

@@ -15,6 +15,7 @@ import java.util.List;
 
 public class User {
     private final static Gson gson = new Gson();
+    private final Experience exp = new Experience();
     private final Player player;
     private Double points;
     private HashSet<Chunk> chunks;
@@ -25,7 +26,7 @@ public class User {
 
 
     public User(Player player) {
-        this(player, 0.0, new HashSet<>(), 0.0, 0.0, 100.0, 1.0);
+        this(player, 0.0, new HashSet<>(), 1.0, 0.0, 100.0, 1.0);
     }
 
     public User(Player player, Double points, HashSet<Chunk> chunks, Double level, Double currentExp, Double neededExp, Double multiplier) {
@@ -206,4 +207,19 @@ public class User {
 
     }
 
+    private boolean getNewLevel(double experience) {
+        if (getLevel() <= exp.getMaxLevel()) {
+            return experience + getCurrentExp() >= getNeededExp();
+        } else {
+            return false;
+        }
+    }
+
+    public void addExperience(double expGained) {
+        double experienceLeft = expGained;
+        while (getNewLevel(experienceLeft)) {
+            double newExpNeeded = exp.calcExperienceNeeded(getLevel());
+
+        }
+    }
 }

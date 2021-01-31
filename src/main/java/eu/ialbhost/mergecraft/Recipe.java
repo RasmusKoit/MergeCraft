@@ -44,6 +44,10 @@ public class Recipe {
         return recipes.get(key);
     }
 
+    public double getMaterialExp(Material material) {
+        return 1.0;
+    }
+
     public boolean containsRecipe(String recipe) {
         return recipes.containsKey(recipe);
     }
