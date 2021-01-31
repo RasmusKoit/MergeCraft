@@ -3,8 +3,9 @@ package eu.ialbhost.mergecraft;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class Recipe {
     private final HashMap<String, Material> recipes;
@@ -39,12 +40,8 @@ public class Recipe {
     }
 
 
-    public Material getRecipe(String key){
+    public Material getRecipe(String key) {
         return recipes.get(key);
-    }
-
-    public HashMap<String, Material> getRecipes() {
-        return recipes;
     }
 
     public boolean containsRecipe(String recipe) {
@@ -54,8 +51,6 @@ public class Recipe {
     public List<String> getMergeAmounts() {
         return mergeAmounts;
     }
-
-
 
 
 }

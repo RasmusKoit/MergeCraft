@@ -4,7 +4,6 @@ import eu.ialbhost.mergecraft.commands.Points;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -19,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,9 +27,9 @@ import java.util.logging.Logger;
 
 public class MergeCraft extends JavaPlugin {
     private final Logger log = this.getLogger();
+    private final Set<User> users = new HashSet<>();
     private FileConfiguration customConfig = null;
     private Recipe recipe;
-    private Set<User> users = new HashSet<>();
 
     public FileConfiguration getRecipesConfig() {
         return customConfig;
@@ -39,7 +37,7 @@ public class MergeCraft extends JavaPlugin {
 
 
     @Override
-    public void onDisable(){
+    public void onDisable() {
         log.log(Level.INFO, "Disabled version %s", getDescription().getVersion());
         SqlDAO.closeConnection();
 
@@ -48,7 +46,6 @@ public class MergeCraft extends JavaPlugin {
     @Override
     public void onEnable() {
         initializeDB();
-//        initializeUsers();
         reloadConfigs();
         loadRecipes();
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
@@ -59,27 +56,14 @@ public class MergeCraft extends JavaPlugin {
 
     }
 
-//    private void initializeUsers() {
-//        List<Player> players = new ArrayList<>(this.getServer().getOnlinePlayers());
-//        for (Player player : players){
-//            User user = User.getUser(player);
-//            if (user == null) { // user wasn't found in DB, lets add him to DB
-//                user = User.initUser(player);
-//            }
-//            addUser(user);
-//            ChunkAccess chunkAccess = new ChunkAccess(player);
-//            chunkAccess.setChunks(user.getChunks());
-//        }
-//    }
-
     private void initializeDB() {
-        String sqlString= """
+        String sqlString = """
                 create table IF NOT EXISTS USER (
                     ID int auto_increment primary key,
                     UUID VARCHAR(36) not null unique,
                     POINTS double,
                     CHUNKS BLOB,
-                    LEVEL int,
+                    LEVEL double,
                     CURRENT_EXP double,
                     NEEDED_EXP double,
                     MULTIPLIER double
@@ -87,9 +71,9 @@ public class MergeCraft extends JavaPlugin {
         try (
                 Connection con = SqlDAO.getConnection();
                 PreparedStatement pst = con.prepareStatement(sqlString)
-        ){
+        ) {
             pst.executeUpdate();
-        }catch (SQLException exception) {
+        } catch (SQLException exception) {
             exception.printStackTrace();
             log.log(Level.SEVERE, "Error while initializing table");
             getServer().getPluginManager().disablePlugin(this);
@@ -106,7 +90,7 @@ public class MergeCraft extends JavaPlugin {
         getConfig().options().copyDefaults(false);
         saveConfig();
         File customConfigFile = new File(getDataFolder(), "recipes.yml");
-        if(!customConfigFile.exists()) {
+        if (!customConfigFile.exists()) {
             saveResource("recipes.yml", false);
         }
         customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
@@ -138,7 +122,7 @@ public class MergeCraft extends JavaPlugin {
     }
 
     public boolean checkPlayer(CommandSender sender) {
-        if(!(sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute that command, you need to be a player!");
             return true;
         } else {
@@ -149,8 +133,8 @@ public class MergeCraft extends JavaPlugin {
     public User matchUser(Player player) {
         Set<User> users = this.users;
         User foundUser = null;
-        for (User user : users){
-            if(user.getPlayer().equals(player)){
+        for (User user : users) {
+            if (user.getPlayer().equals(player)) {
                 foundUser = user;
             }
         }
@@ -183,6 +167,5 @@ public class MergeCraft extends JavaPlugin {
     public Recipe getRecipe() {
         return recipe;
     }
-
 
 }

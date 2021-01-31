@@ -17,7 +17,7 @@ public class Points implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@Nonnull CommandSender sender,@Nonnull Command command,@Nonnull String label, String[] args) {
+    public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
         if (args.length > 2) return false; // too long
         if (plugin.checkPlayer(sender) && args.length == 0) return false; //console execution
         sender.sendMessage("Total users size: " + plugin.getUsers().size());
@@ -46,7 +46,7 @@ public class Points implements CommandExecutor {
                 sender.sendMessage("Second argument must be number!");
                 return false;
             }
-            if(! has(user, amount)) {
+            if (!has(user, amount)) {
                 sender.sendMessage("You do not have enough points to give");
                 return true;
             }
@@ -56,9 +56,9 @@ public class Points implements CommandExecutor {
         if (args.length >= 1) {
             if (args.length == 2) {
                 // take senders points away
-                user.setSQLPoints(user.getPoints() - amount);
+                user.setSQLNumber(user.getPoints() - amount, "POINTS");
                 // add target users points
-                targetUser.setSQLPoints(targetUser.getPoints() + amount);
+                targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
                 sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
                 targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
             } else {

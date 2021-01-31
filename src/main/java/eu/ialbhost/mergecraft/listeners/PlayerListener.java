@@ -16,10 +16,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public final class PlayerListener implements Listener {
     private final MergeCraft plugin;
-//    private final UserDAO dao;
-    public PlayerListener (MergeCraft plugin) {
+
+    //    private final UserDAO dao;
+    public PlayerListener(MergeCraft plugin) {
         this.plugin = plugin;
     }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
 
@@ -40,10 +42,10 @@ public final class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerClick(PlayerInteractEvent event) {
-        if(!event.getPlayer().hasPermission("mergecraft.use.bonemeal")) {
+        if (!event.getPlayer().hasPermission("mergecraft.use.bonemeal")) {
             if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Player player = event.getPlayer();
-                if(player.getInventory().getItemInMainHand().getType().equals(Material.BONE_MEAL)) {
+                if (player.getInventory().getItemInMainHand().getType().equals(Material.BONE_MEAL)) {
                     event.getPlayer().sendMessage("Cant use bonemeal");
                     event.setCancelled(true);
                 } else if (player.getInventory().getItemInOffHand().getType().equals(Material.BONE_MEAL)) {

@@ -2,7 +2,10 @@ package eu.ialbhost.mergecraft.listeners;
 
 import eu.ialbhost.mergecraft.MergeCraft;
 import eu.ialbhost.mergecraft.Recipe;
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -43,7 +46,7 @@ public class BlockMergeListener implements Listener {
                 playMergeEffect(transformBlock.getLocation(), player);
                 searchedBlocks.remove(transformBlock);
             }
-            for(int k = 0; k < (key-value); k++) {
+            for (int k = 0; k < (key - value); k++) {
                 Block removeBlock = searchedBlocks.iterator().next();
                 removeBlock.setType(Material.AIR);
                 searchedBlocks.remove(removeBlock);

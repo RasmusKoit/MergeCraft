@@ -12,7 +12,7 @@ public class ChunkData {
         this.z = z;
     }
 
-    public Chunk toChunk(World world){
+    public Chunk toChunk(World world) {
         return world.getChunkAt(x, z);
     }
 }
