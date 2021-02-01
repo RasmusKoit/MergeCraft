@@ -63,7 +63,7 @@ public class User {
     }
 
     public static String chunksToStr(Set<Chunk> chunks) {
-        List<ChunkData> chunkDataList = new ArrayList<>();
+        List<ChunkData> chunkDataList = new ArrayList<>(chunks.size());
         for (Chunk chunk : chunks) {
             ChunkData data = new ChunkData(chunk.getX(), chunk.getZ());
             chunkDataList.add(data);
@@ -71,7 +71,7 @@ public class User {
         return GSON.toJson(chunkDataList);
     }
 
-    public static User initSQLUser(Player player) {
+    public static User initSQLUser(Player player) throws SQLException {
         User user = new User(player);
         String sqlString = """
                 INSERT INTO USER
@@ -87,8 +87,6 @@ public class User {
             pst.setDouble(6, user.getNeededExp());
             pst.setDouble(7, user.getMultiplier());
             pst.executeUpdate();
-        } catch (SQLException exception) {
-            exception.printStackTrace();
         }
 
         return user;
@@ -160,7 +158,7 @@ public class User {
         setChunks(chunkSet);
     }
 
-    public void setSQLNumber(Double amount, String col) {
+    public void setSQLNumber(Double amount, String col) throws SQLException {
         String sqlString = String.format("""
                 UPDATE USER
                 SET %s = ?
@@ -171,12 +169,10 @@ public class User {
             pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
             pickNumberSetter(col, amount);
-        } catch (SQLException exception) {
-            exception.printStackTrace();
         }
     }
 
-    public void setSQLChunks(Set<Chunk> chunkSet, String col) {
+    public void setSQLChunks(Set<Chunk> chunkSet, String col) throws SQLException {
         String sqlString = String.format("""
                 UPDATE USER
                 SET %s = ?
@@ -188,8 +184,6 @@ public class User {
             pst.executeUpdate();
             setChunks(chunkSet);
 
-        } catch (SQLException exception) {
-            exception.printStackTrace();
         }
     }
 
@@ -217,10 +211,11 @@ public class User {
         return false;
     }
 
-    public void addExperience(double experience) {
+    public void addExperience(double experience) throws SQLException {
         double level = getLevel();
         experience = experience + getCurrentExp();
         double newExpNeeded = getNeededExp();
+
         while (getNewLevel(experience, newExpNeeded, level)) {
             level += 1;
             newExpNeeded = exp.calcExperienceNeeded(level);
@@ -235,10 +230,13 @@ public class User {
         }
         setSQLNumber(experience, "CURRENT_EXP");
         setCurrentExp(experience);
+
     }
 
-    public void addPoints(int value) {
+    public void addPoints(int value) throws SQLException {
+
         setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
         setPoints(getPoints() + (value * getMultiplier()));
+
     }
 }

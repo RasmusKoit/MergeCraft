@@ -9,9 +9,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.sql.SQLException;
 
 
 public final class PlayerListener implements Listener {
@@ -57,15 +59,22 @@ public final class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onServerJoin(PlayerJoinEvent event) {
+    public void onServerJoin(PlayerLoginEvent event) {
         //Initialize player
+
         Player player = event.getPlayer();
         User user = User.getSQLUser(player);
         if (user == null) { // user wasn't found in DB, lets add him to DB
-            user = User.initSQLUser(player);
+            try {
+                user = User.initSQLUser(player);
+            } catch (SQLException exception) {
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "SQL Exception: User initialization failed");
+            }
         }
-        plugin.addUser(user);
-        event.getPlayer().sendMessage(user.getChunks().toString());
+        if (user != null) {
+            plugin.addUser(user);
+            event.getPlayer().sendMessage(user.getChunks().toString());
+        }
     }
 
     @EventHandler

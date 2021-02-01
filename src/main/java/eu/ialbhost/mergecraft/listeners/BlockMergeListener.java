@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,11 +32,16 @@ public class BlockMergeListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block placedBlock = event.getBlock();
         if (plugin.hasRecipe(placedBlock.getType())) {
-            mergeIfNeeded(placedBlock, event.getPlayer());
+            try {
+                mergeIfNeeded(placedBlock, event.getPlayer());
+            } catch (SQLException exception) {
+                event.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Failed merging blocks");
+                exception.printStackTrace();
+            }
         }
     }
 
-    public void mergeIfNeeded(Block placed, Player player) {
+    public void mergeIfNeeded(Block placed, Player player) throws SQLException {
         String placedBlockName = placed.getType().toString();
         Set<Block> searchedBlocks = findBlocks(placed);
         Map<Integer, Integer> merge = findMergeAmount(searchedBlocks);

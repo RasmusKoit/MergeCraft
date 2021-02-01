@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
 
 public class Points implements CommandExecutor {
@@ -71,13 +72,16 @@ public class Points implements CommandExecutor {
                     sender.sendMessage("This is not a valid amount!");
                     return false;
                 }
-
-                // take senders points away
-                user.setSQLNumber(user.getPoints() - amount, "POINTS");
-                // add target users points
-                targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
-                sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
-                targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
+                try {
+                    // take senders points away
+                    user.setSQLNumber(user.getPoints() - amount, "POINTS");
+                    // add target users points
+                    targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
+                    sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
+                    targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
 
             } else {
                 sender.sendMessage(targetPlayer.getDisplayName() + " has: " + targetUser.getPoints() + " points");
