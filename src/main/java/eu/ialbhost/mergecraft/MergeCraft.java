@@ -68,6 +68,7 @@ public class MergeCraft extends JavaPlugin {
             log.log(Level.SEVERE, "You need to configure and use MySQL access in order to use this plugin!");
             log.log(Level.SEVERE, "Config is found in config.yml. This error is caused by mysql.use being false");
             getServer().getPluginManager().disablePlugin(this);
+            this.setEnabled(false);
             return;
         }
         SqlDAO.setJdbcUrl(this.getConfig().getString("sql.jdbcUrl"));
@@ -81,6 +82,8 @@ public class MergeCraft extends JavaPlugin {
         } catch (SQLException exception) {
             log.log(Level.SEVERE, "Error while initializing table", exception);
             getServer().getPluginManager().disablePlugin(this);
+            this.setEnabled(false);
+
         }
     }
 
@@ -121,6 +124,8 @@ public class MergeCraft extends JavaPlugin {
         if (config == null) {
             log.log(Level.SEVERE, "Error loading default config from plugin, disabling plugin");
             getServer().getPluginManager().disablePlugin(this);
+            this.setEnabled(false);
+
             return;
         }
 
