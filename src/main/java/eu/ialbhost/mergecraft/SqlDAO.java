@@ -10,7 +10,6 @@ public class SqlDAO {
     private static HikariDataSource ds;
     private static final HikariConfig config = new HikariConfig();
 
-    // TODO: never show passwords in git, use something safer
     static {
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
