@@ -210,19 +210,36 @@ public class User {
 
     }
 
-    private boolean getNewLevel(double experience) {
-        if (getLevel() <= exp.getMaxLevel()) {
-            return experience + getCurrentExp() >= getNeededExp();
+    private boolean getNewLevel(double experience, double needed_exp, double level) {
+        if (level <= exp.getMaxLevel()) {
+            return experience >= needed_exp;
         }
 
         return false;
     }
 
-    // TODO do something here
-    public void addExperience(double expGained) {
-        while (getNewLevel(expGained)) {
-            double newExpNeeded = exp.calcExperienceNeeded(getLevel());
-
+    public void addExperience(double experience) {
+        double level = getLevel();
+        experience = experience + getCurrentExp();
+        double newExpNeeded = getNeededExp();
+        while (getNewLevel(experience, newExpNeeded, level)) {
+            level += 1;
+            newExpNeeded = exp.calcExperienceNeeded(level);
+            if (experience - newExpNeeded < 0) break;
+            experience = experience - newExpNeeded;
         }
+        if (level != getLevel()) {
+            setSQLNumber(level, "LEVEL");
+            setSQLNumber(exp.calcExperienceNeeded(level), "NEEDED_EXP");
+            setLevel(level);
+            setNeededExp(exp.calcExperienceNeeded(level));
+        }
+        setSQLNumber(experience, "CURRENT_EXP");
+        setCurrentExp(experience);
+    }
+
+    public void addPoints(int value) {
+        setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
+        setPoints(getPoints() + (value * getMultiplier()));
     }
 }

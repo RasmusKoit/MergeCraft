@@ -21,18 +21,16 @@ public class BlockMergeListener implements Listener {
     private static final Set<BlockFace> DIRECTIONS = Set.of(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
 
     private final MergeCraft plugin;
-    private final Recipe recipe;
     private final Experience exp = new Experience();
 
     public BlockMergeListener(MergeCraft plugin) {
         this.plugin = plugin;
-        this.recipe = plugin.getRecipe();
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block placedBlock = event.getBlock();
-        if (recipe.containsRecipe(placedBlock.getType().toString())) {
+        if (plugin.hasRecipe(placedBlock.getType())) {
             mergeIfNeeded(placedBlock, event.getPlayer());
         }
     }
@@ -44,10 +42,10 @@ public class BlockMergeListener implements Listener {
         if (merge != null) {
             int key = merge.keySet().iterator().next();
             int value = merge.get(key);
-            Material mergeMat = recipe.getRecipe(placedBlockName);
+            Recipe recipe = plugin.matchRecipe(placed.getType());
             for (int i = 0; i < value; i++) {
                 Block transformBlock = searchedBlocks.iterator().next();
-                transformBlock.setType(mergeMat);
+                transformBlock.setType(recipe.getMerge_to());
                 playMergeEffect(transformBlock.getLocation(), player);
                 searchedBlocks.remove(transformBlock);
             }
@@ -56,10 +54,12 @@ public class BlockMergeListener implements Listener {
                 removeBlock.setType(Material.AIR);
                 searchedBlocks.remove(removeBlock);
             }
-            double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getMaterialExp(mergeMat), value);
+            double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getExp(), value);
+            plugin.matchUser(player).addPoints(value);
             player.sendMessage("You gained: " + xpGain);
             player.sendMessage("Merged " + placedBlockName.toLowerCase().replace("_", " ") +
-                    " into " + value + " " + mergeMat.toString().toLowerCase().replace("_", " "));
+                    " into " + value + " " +
+                    recipe.getMerge_to().toString().toLowerCase().replace("_", " "));
         }
 
     }
@@ -69,7 +69,7 @@ public class BlockMergeListener implements Listener {
 
 
         Map<Integer, Integer> mergeMap = new HashMap<>();
-        for (String elem : recipe.getMergeAmounts()) {
+        for (String elem : plugin.getMergeAmounts()) {
             String[] splitByEqualsSign = elem.split("=");
             mergeMap.put(Integer.valueOf(splitByEqualsSign[0]), Integer.valueOf(splitByEqualsSign[1]));
         }

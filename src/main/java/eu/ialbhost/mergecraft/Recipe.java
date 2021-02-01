@@ -1,55 +1,30 @@
 package eu.ialbhost.mergecraft;
 
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class Recipe {
-    private final HashMap<String, Material> recipes;
-    private final List<String> mergeAmounts;
-    private final MergeCraft plugin;
+    private final Material merge_from;
+    private final Material merge_to;
+    private final Double exp;
 
-    public Recipe(MergeCraft plugin) {
-        this.plugin = plugin;
-        this.recipes = new HashMap<>();
-        this.mergeAmounts = new ArrayList<>();
-        loadRecipes();
+    public Recipe(Material material, Material mergeTo, Double exp) {
+        this.merge_from = material;
+        this.merge_to = mergeTo;
+        this.exp = exp;
     }
 
-    public void addRecipe(String key, Material value) {
-        recipes.put(key, value);
+
+    public Material getMerge_from() {
+        return merge_from;
     }
 
-    public void loadRecipes() {
-        FileConfiguration recipeConfig = plugin.getRecipesConfig();
-        List<String> recList = recipeConfig.getStringList("recipes");
-        mergeAmounts.addAll(recipeConfig.getStringList("amounts"));
-
-        if (!recList.isEmpty()) {
-            for (String rec : recList) {
-                String[] splitByEqualsSign = rec.split("=");
-                addRecipe(splitByEqualsSign[0], Material.valueOf(splitByEqualsSign[1]));
-            }
-        }
+    public Material getMerge_to() {
+        return merge_to;
     }
 
-    public Material getRecipe(String key) {
-        return recipes.get(key);
+    public Double getExp() {
+        return exp;
     }
 
-    // TODO parameter not used
-    public double getMaterialExp(Material material) {
-        return 1.0;
-    }
 
-    public boolean containsRecipe(String recipe) {
-        return recipes.containsKey(recipe);
-    }
-
-    public List<String> getMergeAmounts() {
-        return mergeAmounts;
-    }
 }

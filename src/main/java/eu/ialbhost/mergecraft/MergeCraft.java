@@ -4,6 +4,7 @@ import eu.ialbhost.mergecraft.commands.Points;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
+import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
@@ -18,9 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,12 +27,9 @@ import java.util.logging.Logger;
 public class MergeCraft extends JavaPlugin {
     private final Logger log = this.getLogger();
     private final Set<User> users = new HashSet<>();
-    private FileConfiguration customConfig = null;
-    private Recipe recipe;
-
-    public FileConfiguration getRecipesConfig() {
-        return customConfig;
-    }
+    private final Set<Recipe> recipes = new HashSet<>();
+    private List<String> mergeAmounts = new ArrayList<>();
+    private FileConfiguration recipeConfig;
 
 
     @Override
@@ -45,8 +41,8 @@ public class MergeCraft extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        initializeDB();
         reloadConfigs();
+        initializeDB();
         loadRecipes();
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
@@ -78,20 +74,39 @@ public class MergeCraft extends JavaPlugin {
         }
     }
 
+    //This is so ugly :S
+    @SuppressWarnings("unchecked")
+    private void loadRecipes() {
+        if (recipeConfig.getList("recipes") != null) {
+            List<?> recipeListFromConfig = recipeConfig.getList("recipes");
+            if (recipeListFromConfig != null) {
+                for (Object recipeObject : recipeListFromConfig) {
+                    if (recipeObject != null) {
+                        Map<String, Map<String, Object>> recipeObjToMap = (Map<String, Map<String, Object>>) recipeObject;
+                        Map<String, Object> reMap = recipeObjToMap.get("recipe");
+                        Recipe recipe = new Recipe(
+                                Material.matchMaterial(reMap.get("merge_from").toString()),
+                                Material.matchMaterial(reMap.get("merge_to").toString()),
+                                (Double) reMap.get("exp"));
+                        addRecipe(recipe);
+                    }
+                }
+            }
+        }
+        mergeAmounts.addAll(recipeConfig.getStringList("amounts"));
+        log.log(Level.INFO, "Total loaded recipe size: " + recipes.size());
 
-    public void loadRecipes() {
-        this.recipe = new Recipe(this);
     }
 
     public void reloadConfigs() {
         saveDefaultConfig();
         getConfig().options().copyDefaults(false);
         saveConfig();
-        File customConfigFile = new File(getDataFolder(), "recipes.yml");
-        if (!customConfigFile.exists()) {
+        File recipesConfigFile = new File(getDataFolder(), "recipes.yml");
+        if (!recipesConfigFile.exists()) {
             saveResource("recipes.yml", false);
         }
-        customConfig = YamlConfiguration.loadConfiguration(customConfigFile);
+        this.recipeConfig = YamlConfiguration.loadConfiguration(recipesConfigFile);
         InputStream config = this.getResource("recipes.yml");
         if (config == null) {
             log.log(Level.SEVERE, "Error loading default config from plugin, disabling plugin");
@@ -101,7 +116,7 @@ public class MergeCraft extends JavaPlugin {
 
         try (Reader defConfigStream = new InputStreamReader(config, StandardCharsets.UTF_8)) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-            customConfig.setDefaults(defConfig);
+            this.recipeConfig.setDefaults(defConfig);
         } catch (IOException exception) {
             log.log(Level.SEVERE, "Error loading config", exception);
         }
@@ -128,12 +143,20 @@ public class MergeCraft extends JavaPlugin {
         return false;
     }
 
+    public Set<Recipe> getRecipes() {
+        return this.recipes;
+    }
+
     public User matchUser(Player player) {
         Set<User> users = this.users;
         return users.stream()
                 .filter(u -> u.getPlayer().equals(player))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    public void addRecipe(Recipe recipe) {
+        this.recipes.add(recipe);
     }
 
     public void addUser(User user) {
@@ -155,8 +178,21 @@ public class MergeCraft extends JavaPlugin {
                 : players.get(0);
     }
 
-    public Recipe getRecipe() {
-        return recipe;
+
+    public boolean hasRecipe(Material type) {
+        return this.recipes.stream().anyMatch(p -> p.getMerge_from() == type);
+
     }
 
+    public Recipe matchRecipe(Material type) {
+        Set<Recipe> recipes = this.recipes;
+        return recipes.stream()
+                .filter(u -> u.getMerge_from().equals(type))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public List<String> getMergeAmounts() {
+        return this.mergeAmounts;
+    }
 }
