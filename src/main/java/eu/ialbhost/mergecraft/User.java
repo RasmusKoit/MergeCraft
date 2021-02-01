@@ -55,6 +55,8 @@ public class User {
                 user = new User(player);
                 user.populate(rs, player);
             }
+            rs.close();
+            pst.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -86,7 +88,7 @@ public class User {
             pst.setDouble(6, user.getNeededExp());
             pst.setDouble(7, user.getMultiplier());
             pst.executeUpdate();
-
+            pst.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -170,6 +172,7 @@ public class User {
             pst.setDouble(1, amount);
             pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
+            pst.close();
             pickNumberSetter(col, amount);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -177,16 +180,16 @@ public class User {
     }
 
     public void setSQLChunks(Set<Chunk> chunkSet, String col) {
-        String sqlString = """
+        String sqlString = String.format("""
                 UPDATE USER
-                SET ? = ?
-                WHERE UUID=?""";
+                SET %s = ?
+                WHERE UUID=?""", col);
         try (Connection con = SqlDAO.getConnection()) {
             PreparedStatement pst = con.prepareStatement(sqlString);
-            pst.setString(1, col);
-            pst.setString(2, chunksToStr(chunkSet));
-            pst.setString(3, getPlayer().getUniqueId().toString());
+            pst.setString(1, chunksToStr(chunkSet));
+            pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
+            pst.close();
             setChunks(chunkSet);
 
         } catch (SQLException exception) {

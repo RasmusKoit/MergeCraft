@@ -77,6 +77,7 @@ public class MergeCraft extends JavaPlugin {
         try (Connection con = SqlDAO.getConnection()) {
             PreparedStatement pst = con.prepareStatement(sqlString);
             pst.executeUpdate();
+            pst.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
             log.log(Level.SEVERE, "Error while initializing table");
