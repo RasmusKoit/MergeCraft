@@ -21,7 +21,7 @@ public class SqlDAO {
     private SqlDAO() {
     }
 
-    public static void setDs() {
+    public static void setupDataSource() {
         ds = new HikariDataSource(config);
     }
 

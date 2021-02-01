@@ -28,7 +28,7 @@ public class MergeCraft extends JavaPlugin {
     private final Logger log = this.getLogger();
     private final Set<User> users = new HashSet<>();
     private final Set<Recipe> recipes = new HashSet<>();
-    private List<String> mergeAmounts = new ArrayList<>();
+    private final List<String> mergeAmounts = new ArrayList<>();
     private FileConfiguration recipeConfig;
 
 
@@ -73,7 +73,7 @@ public class MergeCraft extends JavaPlugin {
         SqlDAO.setJdbcUrl(this.getConfig().getString("sql.jdbcUrl"));
         SqlDAO.setUsername(this.getConfig().getString("sql.username"));
         SqlDAO.setPassword(this.getConfig().getString("sql.password"));
-        SqlDAO.setDs();
+        SqlDAO.setupDataSource();
         try (Connection con = SqlDAO.getConnection()) {
             PreparedStatement pst = con.prepareStatement(sqlString);
             pst.executeUpdate();
