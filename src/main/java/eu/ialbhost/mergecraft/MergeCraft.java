@@ -64,6 +64,16 @@ public class MergeCraft extends JavaPlugin {
                     NEEDED_EXP double,
                     MULTIPLIER double
                 )""";
+        if (!this.getConfig().getBoolean("sql.use")) {
+            log.log(Level.SEVERE, "You need to configure and use MySQL access in order to use this plugin!");
+            log.log(Level.SEVERE, "Config is found in config.yml. This error is caused by mysql.use being false");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        SqlDAO.setJdbcUrl(this.getConfig().getString("sql.jdbcUrl"));
+        SqlDAO.setUsername(this.getConfig().getString("sql.username"));
+        SqlDAO.setPassword(this.getConfig().getString("sql.password"));
+        SqlDAO.setDs();
         try (Connection con = SqlDAO.getConnection()) {
             PreparedStatement pst = con.prepareStatement(sqlString);
             pst.executeUpdate();

@@ -7,23 +7,35 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class SqlDAO {
-    private static final HikariDataSource ds;
+    private static HikariDataSource ds;
     private static final HikariConfig config = new HikariConfig();
 
     // TODO: never show passwords in git, use something safer
     static {
-        config.setJdbcUrl("jdbc:mysql://eu.1.node.ialbhost.eu:3306/s14_mergecraft");
-        config.setUsername("u14_JjdGCUZRel");
-        config.setPassword("8+QOQuQON=CV^HZe0QNda1i1");
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.setLeakDetectionThreshold(2000);
         config.setAutoCommit(true);
-        ds = new HikariDataSource(config);
     }
 
     private SqlDAO() {
+    }
+
+    public static void setDs() {
+        ds = new HikariDataSource(config);
+    }
+
+    public static void setJdbcUrl(String url) {
+        config.setJdbcUrl(url);
+    }
+
+    public static void setUsername(String username) {
+        config.setUsername(username);
+    }
+
+    public static void setPassword(String password) {
+        config.setPassword(password);
     }
 
     public static Connection getConnection() throws SQLException {

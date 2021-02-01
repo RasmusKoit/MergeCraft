@@ -3,7 +3,7 @@ world:
     bonemeal:
       allow: false
 sql:
-  use: true
+  use: false
   username: userName
   password: p4SSw0rd
   jdbcUrl: jdbc:mysql://<hostname>:<port>/database_name
