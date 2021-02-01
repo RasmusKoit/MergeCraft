@@ -1,5 +1,7 @@
 package eu.ialbhost.mergecraft;
 
+import java.sql.SQLException;
+
 public class Experience {
     /*
     y = 100*float(x)**1.765776
@@ -11,7 +13,7 @@ public class Experience {
     public Experience() {
     }
 
-    public double calculateExpEarned(User user, Double matExp, Integer count) {
+    public double calculateExpEarned(User user, Double matExp, Integer count) throws SQLException {
         double expGained;
         expGained = ((matExp * count) * (user.getMultiplier() + 0.01 * count));
         user.addExperience(expGained);

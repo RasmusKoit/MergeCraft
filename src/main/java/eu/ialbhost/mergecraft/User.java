@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class User {
     private final static Gson GSON = new Gson();
@@ -47,22 +48,24 @@ public class User {
     public static User getSQLUser(Player player) {
         String sqlString = "SELECT * FROM USER WHERE UUID = ?";
         User user = null;
-        try (Connection con = SqlDAO.getConnection()) {
-            PreparedStatement pst = con.prepareStatement(sqlString);
+        try (Connection con = SqlDAO.getConnection();
+             PreparedStatement pst = con.prepareStatement(sqlString)) {
             pst.setString(1, player.getUniqueId().toString());
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 user = new User(player);
                 user.populate(rs, player);
             }
+            rs.close();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            player.kickPlayer("[MergeCraft] SQL Exception: Get user query failed");
+            player.getServer().getLogger().log(Level.SEVERE, "SQL Exception while searhing for user", exception);
         }
         return user;
     }
 
     public static String chunksToStr(Set<Chunk> chunks) {
-        List<ChunkData> chunkDataList = new ArrayList<>();
+        List<ChunkData> chunkDataList = new ArrayList<>(chunks.size());
         for (Chunk chunk : chunks) {
             ChunkData data = new ChunkData(chunk.getX(), chunk.getZ());
             chunkDataList.add(data);
@@ -70,14 +73,14 @@ public class User {
         return GSON.toJson(chunkDataList);
     }
 
-    public static User initSQLUser(Player player) {
+    public static User initSQLUser(Player player) throws SQLException {
         User user = new User(player);
         String sqlString = """
                 INSERT INTO USER
                 (UUID, POINTS, CHUNKS, LEVEL, CURRENT_EXP, NEEDED_EXP, MULTIPLIER) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)""";
-        try (Connection con = SqlDAO.getConnection()) {
-            PreparedStatement pst = con.prepareStatement(sqlString);
+        try (Connection con = SqlDAO.getConnection();
+             PreparedStatement pst = con.prepareStatement(sqlString)) {
             pst.setString(1, user.getPlayer().getUniqueId().toString());
             pst.setDouble(2, user.getPoints());
             pst.setString(3, chunksToStr(user.getChunks()));
@@ -86,9 +89,6 @@ public class User {
             pst.setDouble(6, user.getNeededExp());
             pst.setDouble(7, user.getMultiplier());
             pst.executeUpdate();
-
-        } catch (SQLException exception) {
-            exception.printStackTrace();
         }
 
         return user;
@@ -160,37 +160,32 @@ public class User {
         setChunks(chunkSet);
     }
 
-    public void setSQLNumber(Double amount, String col) {
+    public void setSQLNumber(Double amount, String col) throws SQLException {
         String sqlString = String.format("""
                 UPDATE USER
                 SET %s = ?
                 WHERE UUID=?""", col);
-        try (Connection con = SqlDAO.getConnection()) {
-            PreparedStatement pst = con.prepareStatement(sqlString);
+        try (Connection con = SqlDAO.getConnection();
+             PreparedStatement pst = con.prepareStatement(sqlString)) {
             pst.setDouble(1, amount);
             pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
             pickNumberSetter(col, amount);
-        } catch (SQLException exception) {
-            exception.printStackTrace();
         }
     }
 
-    public void setSQLChunks(Set<Chunk> chunkSet, String col) {
-        String sqlString = """
+    public void setSQLChunks(Set<Chunk> chunkSet, String col) throws SQLException {
+        String sqlString = String.format("""
                 UPDATE USER
-                SET ? = ?
-                WHERE UUID=?""";
-        try (Connection con = SqlDAO.getConnection()) {
-            PreparedStatement pst = con.prepareStatement(sqlString);
-            pst.setString(1, col);
-            pst.setString(2, chunksToStr(chunkSet));
-            pst.setString(3, getPlayer().getUniqueId().toString());
+                SET %s = ?
+                WHERE UUID=?""", col);
+        try (Connection con = SqlDAO.getConnection();
+             PreparedStatement pst = con.prepareStatement(sqlString)) {
+            pst.setString(1, chunksToStr(chunkSet));
+            pst.setString(2, getPlayer().getUniqueId().toString());
             pst.executeUpdate();
             setChunks(chunkSet);
 
-        } catch (SQLException exception) {
-            exception.printStackTrace();
         }
     }
 
@@ -218,10 +213,11 @@ public class User {
         return false;
     }
 
-    public void addExperience(double experience) {
+    public void addExperience(double experience) throws SQLException {
         double level = getLevel();
         experience = experience + getCurrentExp();
         double newExpNeeded = getNeededExp();
+
         while (getNewLevel(experience, newExpNeeded, level)) {
             level += 1;
             newExpNeeded = exp.calcExperienceNeeded(level);
@@ -236,10 +232,13 @@ public class User {
         }
         setSQLNumber(experience, "CURRENT_EXP");
         setCurrentExp(experience);
+
     }
 
-    public void addPoints(int value) {
+    public void addPoints(int value) throws SQLException {
+
         setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
         setPoints(getPoints() + (value * getMultiplier()));
+
     }
 }

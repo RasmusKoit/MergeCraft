@@ -2,3 +2,8 @@ world:
   dispenser:
     bonemeal:
       allow: false
+sql:
+  use: false
+  username: userName
+  password: p4SSw0rd
+  jdbcUrl: jdbc:mysql://<hostname>:<port>/database_name

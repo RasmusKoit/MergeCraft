@@ -8,7 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
+import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 
 public class Points implements CommandExecutor {
     private final MergeCraft plugin;
@@ -71,13 +73,19 @@ public class Points implements CommandExecutor {
                     sender.sendMessage("This is not a valid amount!");
                     return false;
                 }
-
-                // take senders points away
-                user.setSQLNumber(user.getPoints() - amount, "POINTS");
-                // add target users points
-                targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
-                sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
-                targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
+                try {
+                    // take senders points away
+                    user.setSQLNumber(user.getPoints() - amount, "POINTS");
+                    // add target users points
+                    targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
+                    sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
+                    targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
+                } catch (SQLException exception) {
+                    targetPlayer.kickPlayer("[MergeCraft] SQL Exception: Setting points failed");
+                    user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Removing points failed");
+                    sender.getServer().getLogger().log(Level.SEVERE,
+                            "SQL Exception setting/removing points for users", exception);
+                }
 
             } else {
                 sender.sendMessage(targetPlayer.getDisplayName() + " has: " + targetUser.getPoints() + " points");
