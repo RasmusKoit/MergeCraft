@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
 
 public class User {
     private final static Gson GSON = new Gson();
@@ -57,7 +58,8 @@ public class User {
             }
             rs.close();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            player.kickPlayer("[MergeCraft] SQL Exception: Get user query failed");
+            player.getServer().getLogger().log(Level.SEVERE, "SQL Exception while searhing for user", exception);
         }
         return user;
     }

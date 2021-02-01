@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import javax.annotation.Nonnull;
 import java.sql.SQLException;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 
 public class Points implements CommandExecutor {
     private final MergeCraft plugin;
@@ -80,7 +81,10 @@ public class Points implements CommandExecutor {
                     sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
                     targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
                 } catch (SQLException exception) {
-                    exception.printStackTrace();
+                    targetPlayer.kickPlayer("[MergeCraft] SQL Exception: Setting points failed");
+                    user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Removing points failed");
+                    sender.getServer().getLogger().log(Level.SEVERE,
+                            "SQL Exception setting/removing points for users", exception);
                 }
 
             } else {

@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
 
 
 public final class PlayerListener implements Listener {
@@ -69,6 +70,7 @@ public final class PlayerListener implements Listener {
                 user = User.initSQLUser(player);
             } catch (SQLException exception) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "SQL Exception: User initialization failed");
+                event.getPlayer().getServer().getLogger().log(Level.SEVERE, "User initialization failed", exception);
             }
         }
         if (user != null) {

@@ -79,8 +79,7 @@ public class MergeCraft extends JavaPlugin {
             pst.executeUpdate();
             pst.close();
         } catch (SQLException exception) {
-            exception.printStackTrace();
-            log.log(Level.SEVERE, "Error while initializing table");
+            log.log(Level.SEVERE, "Error while initializing table", exception);
             getServer().getPluginManager().disablePlugin(this);
         }
     }

@@ -16,6 +16,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class BlockMergeListener implements Listener {
@@ -36,7 +37,7 @@ public class BlockMergeListener implements Listener {
                 mergeIfNeeded(placedBlock, event.getPlayer());
             } catch (SQLException exception) {
                 event.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Failed merging blocks");
-                exception.printStackTrace();
+                event.getPlayer().getServer().getLogger().log(Level.SEVERE, "Failed placing blocks", exception);
             }
         }
     }
