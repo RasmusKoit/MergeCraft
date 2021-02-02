@@ -5,10 +5,7 @@ import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
 import org.bukkit.Material;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -50,6 +47,36 @@ public class MergeCraft extends JavaPlugin {
         registerCommand("points", new Points(this));
 
 
+    }
+
+    /*
+      /points [ cmd ][ <user> ][ amount ]
+      /points
+      /points  show     user
+      /points  give     user     100.0
+    */
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> tabHints = new ArrayList<>();
+        if (command.getName().equalsIgnoreCase("points")) {
+            switch (args.length) {
+                case 1:
+                    String[] commandHints = new String[]{"show", "give"};
+                    tabHints.addAll(Arrays.asList(commandHints));
+                    return tabHints;
+                case 2:
+                    return null;
+                case 3:
+                    User user = matchUser((Player) sender);
+                    if (args[0].equals("give")) {
+                        tabHints.add(user.getPoints().toString());
+                    }
+                    return tabHints;
+                default:
+                    return tabHints;
+            }
+        }
+        return null;
     }
 
     private void initializeDB() {
@@ -145,6 +172,7 @@ public class MergeCraft extends JavaPlugin {
         }
     }
 
+
     public boolean checkPlayer(CommandSender sender) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute that command, you need to be a player!");
@@ -182,8 +210,8 @@ public class MergeCraft extends JavaPlugin {
         return this.users;
     }
 
-    public Player matchPlayer(String[] split) {
-        List<Player> players = getServer().matchPlayer(split[0]);
+    public Player matchPlayer(String playerUUID) {
+        List<Player> players = getServer().matchPlayer(playerUUID);
         return players.isEmpty()
                 ? null
                 : players.get(0);

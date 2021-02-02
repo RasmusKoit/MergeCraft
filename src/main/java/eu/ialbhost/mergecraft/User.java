@@ -26,6 +26,7 @@ public class User {
     private Double currentExp;
     private Double neededExp;
     private Double multiplier;
+    private Chunk activeChunk;
 
 
     public User(Player player) {
@@ -240,5 +241,13 @@ public class User {
         setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
         setPoints(getPoints() + (value * getMultiplier()));
 
+    }
+
+    public void setActiveChunk(Chunk chunk) {
+        this.activeChunk = chunk;
+    }
+
+    public Chunk getActiveChunk(Chunk chunk) {
+        return this.activeChunk;
     }
 }

@@ -8,7 +8,13 @@ description: MergeCraft game
 commands:
   points:
     description: Check your earned points in MergeCraft, can be used for various activites
-    usage: /points
+    usage:
+      |
+
+      /points [ cmd ][ <user> ][ amount ]
+      /points
+      /points  show     user
+      /points  give     user     100.0
 permissions:
   mergecraft.points:
     description: Allows the player to use points
@@ -16,12 +22,12 @@ permissions:
     children:
       mergecraft.points.use: true
       mergecraft.points.give: true
-      mergecraft.points.other: true
+      mergecraft.points.show: true
   mergecraft.points.use:
     description: Allows the player to use /points command
   mergecraft.points.give:
     description: Allows the player to give points away to others
-  mergecraft.points.other:
+  mergecraft.points.show:
     description: Allows the player to check other player points
 
   mergecraft.use.bonemeal:
@@ -34,3 +40,5 @@ permissions:
     children:
       mergecraft.points: true
       mergecraft.use.bonemeal: true
+depend:
+  - HolographicDisplays
