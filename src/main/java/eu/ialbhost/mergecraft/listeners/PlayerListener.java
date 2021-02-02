@@ -6,10 +6,12 @@ import com.gmail.filoghost.holographicdisplays.api.line.ItemLine;
 import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
 import eu.ialbhost.mergecraft.MergeCraft;
 import eu.ialbhost.mergecraft.User;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -17,8 +19,11 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 
 
@@ -50,7 +55,7 @@ public final class PlayerListener implements Listener {
                     if (hologram != null) {
                         hologram.delete();
                     }
-                    Location middleChunkBlock = toLocation.getChunk().getBlock(8, 5, 8).getLocation();
+                    Location middleChunkBlock = toLocation.getChunk().getBlock(8, (int) player.getLocation().getY(), 8).getLocation();
                     setHologram(HologramsAPI.createHologram(plugin, middleChunkBlock.add(0.0, 3.0, 0.0)));
                     TextLine textLine = hologram.appendTextLine("Purchase this chunk");
                     TextLine textLine3 = hologram.appendTextLine("/points buy [" +
@@ -100,17 +105,37 @@ public final class PlayerListener implements Listener {
         //Initialize player
         Player player = event.getPlayer();
         User user = User.getSQLUser(player);
+        plugin.getLogger().log(Level.INFO, player.getDisplayName() + ": chunk is " + player.getChunk().toString());
         if (user == null) { // user wasn't found in DB, lets add him to DB
             try {
-                user = User.initSQLUser(player);
+                user = new User(player);
+                user.initSQLUser();
             } catch (SQLException exception) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "SQL Exception: User initialization failed");
-                event.getPlayer().getServer().getLogger().log(Level.SEVERE, "User initialization failed", exception);
+                plugin.getServer().getLogger().log(Level.SEVERE, "User initialization failed", exception);
             }
         }
-        if (user != null) {
-            plugin.addUser(user);
-            event.getPlayer().sendMessage(user.getChunks().toString());
+        plugin.addUser(user);
+        event.getPlayer().sendMessage(user.getChunks().toString());
+
+        plugin.getLogger().log(Level.INFO, player.getDisplayName() + ": chunk is " + player.getChunk().toString());
+
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerSpawn(PlayerSpawnLocationEvent event) {
+        Player player = event.getPlayer();
+        User user = User.getSQLUser(player);
+        if (user.getChunks() == null) {
+            Set<Chunk> chunkSet = new HashSet<>(1);
+            chunkSet.add(event.getSpawnLocation().getChunk());
+            try {
+                user.setSQLChunks(chunkSet);
+            } catch (SQLException exception) {
+                player.kickPlayer("User initialization failed, please try again");
+                plugin.getServer().getLogger().log(Level.SEVERE, "User initialization failed, setting chunks", exception);
+            }
+
         }
     }
 
