@@ -239,13 +239,6 @@ public class User {
 
     }
 
-    public void addPoints(int value) throws SQLException {
-
-        setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
-        setPoints(getPoints() + (value * getMultiplier()));
-
-    }
-
     public Chunk getActiveChunk() {
         return this.activeChunk;
     }
