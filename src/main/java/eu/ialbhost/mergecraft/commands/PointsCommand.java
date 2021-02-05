@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
-public class Points implements TabCompleter, CommandExecutor {
+public class PointsCommand implements TabCompleter, CommandExecutor {
     private final MergeCraft plugin;
 
-    public Points(MergeCraft plugin) {
+    public PointsCommand(MergeCraft plugin) {
         this.plugin = plugin;
     }
 
@@ -84,7 +84,7 @@ public class Points implements TabCompleter, CommandExecutor {
                         sender.sendMessage("neg number");
                         return false;
                     }
-                    if (user.getPoints() < amount) {
+                    if (user.hasPoints(amount)) {
                         sender.sendMessage("not enough points");
                         return true;
                     }
@@ -107,7 +107,7 @@ public class Points implements TabCompleter, CommandExecutor {
 
                     // check command
                     sender.sendMessage(targetPlayer.getDisplayName() + " has total of: " +
-                                       targetUser.getPoints() + " points");
+                            targetUser.getPoints() + " points");
 
                     // check command ending
                 }
@@ -151,8 +151,4 @@ public class Points implements TabCompleter, CommandExecutor {
         return null;
     }
 
-
-    public boolean has(User user, double amount) {
-        return user.getPoints() - amount >= 0;
-    }
 }

@@ -1,6 +1,7 @@
 package eu.ialbhost.mergecraft;
 
-import eu.ialbhost.mergecraft.commands.Points;
+import eu.ialbhost.mergecraft.commands.MCCommand;
+import eu.ialbhost.mergecraft.commands.PointsCommand;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
@@ -47,7 +48,8 @@ public class MergeCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
-        registerCommand("points", new Points(this));
+        registerCommand("points", new PointsCommand(this));
+        registerCommand("mergecraft", new MCCommand(this));
 
 
     }

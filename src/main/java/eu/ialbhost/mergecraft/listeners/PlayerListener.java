@@ -14,15 +14,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
-import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -58,9 +55,8 @@ public final class PlayerListener implements Listener {
                     Location middleChunkBlock = toLocation.getChunk().getBlock(8, (int) player.getLocation().getY(), 8).getLocation();
                     setHologram(HologramsAPI.createHologram(plugin, middleChunkBlock.add(0.0, 3.0, 0.0)));
                     TextLine textLine = hologram.appendTextLine("Purchase this chunk");
-                    TextLine textLine3 = hologram.appendTextLine("/points buy [" +
-                                                                 toLocation.getChunk().getX() + ", " +
-                                                                 toLocation.getChunk().getZ() + "]");
+                    TextLine textLine3 = hologram.appendTextLine("/mc buy chunk");
+                    TextLine textLine4 = hologram.appendTextLine("Cost: " + (user.getChunks().size() * 1000) + " points");
 
                     TextLine textLine1 = hologram.appendTextLine("...");
                     TextLine textLine2 = hologram.insertTextLine(0, "...");
@@ -116,22 +112,22 @@ public final class PlayerListener implements Listener {
             }
         }
         plugin.addUser(user);
-        event.getPlayer().sendMessage(user.getChunks().toString());
 
         plugin.getLogger().log(Level.INFO, player.getDisplayName() + ": chunk is " + player.getChunk().toString());
 
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerSpawn(PlayerSpawnLocationEvent event) {
+    public void onPlayerSpawn(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        User user = User.getSQLUser(player);
+        User user = plugin.matchUser(player);
         if (user.getChunks() == null) {
+            player.sendMessage("Your chunks was null!");
             Set<Chunk> chunkSet = new HashSet<>(1);
-            chunkSet.add(event.getSpawnLocation().getChunk());
+            chunkSet.add(event.getPlayer().getChunk());
             try {
                 user.setSQLChunks(chunkSet);
-            } catch (SQLException exception) {
+            } catch (SQLException | NoSuchElementException exception) {
                 player.kickPlayer("User initialization failed, please try again");
                 plugin.getServer().getLogger().log(Level.SEVERE, "User initialization failed, setting chunks", exception);
             }

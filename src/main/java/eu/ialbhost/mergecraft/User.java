@@ -204,6 +204,10 @@ public class User {
 
     }
 
+    public boolean hasPoints(double amount) {
+        return getPoints() - amount >= 0;
+    }
+
     private boolean getNewLevel(double experience, double needed_exp, double level) {
         if (level <= exp.getMaxLevel()) {
             return experience >= needed_exp;
@@ -241,11 +245,11 @@ public class User {
 
     }
 
-    public void setActiveChunk(Chunk chunk) {
-        this.activeChunk = chunk;
+    public Chunk getActiveChunk() {
+        return this.activeChunk;
     }
 
-    public Chunk getActiveChunk(Chunk chunk) {
-        return this.activeChunk;
+    public void setActiveChunk(Chunk chunk) {
+        this.activeChunk = chunk;
     }
 }

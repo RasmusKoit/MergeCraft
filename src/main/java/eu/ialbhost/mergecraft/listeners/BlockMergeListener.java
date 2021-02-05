@@ -29,6 +29,37 @@ public class BlockMergeListener implements Listener {
         this.plugin = plugin;
     }
 
+    public static Set<Block> findBlocks(Block placed) {
+        Set<Block> foundBlocks = new HashSet<>(); // blocks we find with algorithm
+        Set<Block> searchedBlocks = new HashSet<>(); // blocks we have finished searching
+        foundBlocks.add(placed);
+
+        while ((foundBlocks.iterator().hasNext()) && (searchedBlocks.size() < 256)) { // hard limit our search to 1 chunk
+            Block foundBlock = foundBlocks.iterator().next();
+            for (BlockFace direction : DIRECTIONS) {
+                if (foundBlock.getRelative(direction).getType() == placed.getType()) {
+                    if (!searchedBlocks.contains(foundBlock.getRelative(direction))) {
+                        foundBlocks.add(foundBlock.getRelative(direction));
+                    }
+                }
+            }
+            searchedBlocks.add(foundBlock);
+            foundBlocks.remove(foundBlock);
+        }
+
+        return searchedBlocks;
+    }
+
+    private static void playMergeEffect(Location location, Player player) {
+        double locX = location.getX() + 0.5;
+        double locY = location.getY() + 0.2;
+        double locZ = location.getZ() + 0.5;
+
+        player.spawnParticle(Particle.REDSTONE, locX, locY, locZ,
+                0, 0.001, 1, 0, 1,
+                new Particle.DustOptions(Color.GREEN, 3));
+    }
+
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block placedBlock = event.getBlock();
@@ -93,38 +124,6 @@ public class BlockMergeListener implements Listener {
         }
 
         return Map.of(mergeAmountKey, mergeMap.get(mergeAmountKey));
-    }
-
-    public static Set<Block> findBlocks(Block placed) {
-        Set<Block> foundBlocks = new HashSet<>(); // blocks we find with algorithm
-        Set<Block> searchedBlocks = new HashSet<>(); // blocks we have finished searching
-        foundBlocks.add(placed);
-
-        while ((foundBlocks.iterator().hasNext()) && (searchedBlocks.size() < 256)) { // hard limit our search to 1 chunk
-            Block foundBlock = foundBlocks.iterator().next();
-            for (BlockFace direction : DIRECTIONS) {
-                if (foundBlock.getRelative(direction).getType() == placed.getType()) {
-                    if (!searchedBlocks.contains(foundBlock.getRelative(direction))) {
-                        foundBlocks.add(foundBlock.getRelative(direction));
-                    }
-                }
-            }
-            searchedBlocks.add(foundBlock);
-            foundBlocks.remove(foundBlock);
-        }
-
-        return searchedBlocks;
-    }
-
-
-    private static void playMergeEffect(Location location, Player player) {
-        double locX = location.getX() + 0.5;
-        double locY = location.getY() + 0.2;
-        double locZ = location.getZ() + 0.5;
-
-        player.spawnParticle(Particle.REDSTONE, locX, locY, locZ,
-                0, 0.001, 1, 0, 1,
-                new Particle.DustOptions(Color.GREEN, 3));
     }
 
 

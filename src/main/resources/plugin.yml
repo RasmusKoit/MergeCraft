@@ -15,9 +15,14 @@ commands:
       /points
       /points  show     user
       /points  give     user     100.0
+  mergecraft:
+    description: MergeCraft commands.
+    usage: /mergecraft
+    aliases:
+      - mc
 permissions:
   mergecraft.points:
-    description: Allows the player to use points
+    description: Allows the player to use points commands
     default: true
     children:
       mergecraft.points.use: true
