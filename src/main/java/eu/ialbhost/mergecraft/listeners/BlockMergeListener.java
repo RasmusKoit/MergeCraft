@@ -96,7 +96,7 @@ public class BlockMergeListener implements Listener {
             double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getExp(), value);
             User user = plugin.matchUser(player);
             user.setSQLNumber(user.getPoints() + (value * user.getMultiplier()), "POINTS");
-            player.sendMessage("You gained: " + xpGain);
+            player.sendMessage(String.format("You gained: %.0f", xpGain));
             player.sendMessage("Merged " + placedBlockName.toLowerCase().replace("_", " ") +
                     " into " + value + " " +
                     recipe.getMerge_to().toString().toLowerCase().replace("_", " "));

@@ -227,8 +227,10 @@ public class User {
             newExpNeeded = exp.calcExperienceNeeded(level);
             if (experience - newExpNeeded < 0) break;
             experience = experience - newExpNeeded;
+
         }
         if (level != getLevel()) {
+            getPlayer().sendMessage(String.format("You have leveled up to level: %.0f", level));
             setSQLNumber(level, "LEVEL");
             setSQLNumber(exp.calcExperienceNeeded(level), "NEEDED_EXP");
             setLevel(level);
@@ -255,7 +257,9 @@ public class User {
     }
 
     public void rmHologram() {
-        this.hologram.delete();
-        this.hologram = null;
+        if (this.hologram != null) {
+            this.hologram.delete();
+            this.hologram = null;
+        }
     }
 }

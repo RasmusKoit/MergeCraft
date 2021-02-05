@@ -11,8 +11,7 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 public class MCCommand implements TabCompleter, CommandExecutor {
@@ -24,11 +23,13 @@ public class MCCommand implements TabCompleter, CommandExecutor {
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, String[] args) {
-        if (args.length > 2) return false; // too long
+        if (args.length > 3) return false; // too long
         if (!(sender instanceof Player)) return false; //console execution
         User user;
         user = plugin.matchUser((Player) sender);
         double amount;
+        Player targetPlayer;
+        User targetUser;
 
         // TODO: correct permissions to use mergecraft command
         if (!sender.hasPermission("mergecraft.points.use")) {
@@ -42,7 +43,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                 return false;
             }
 
-            if (args.length == 2) {
+            if (args.length >= 2) {
                 if (args[0].equals("buy") && !args[1].equals("chunk")) {
                     sender.sendMessage("wrong cmd");
                     return false;
@@ -74,7 +75,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                                 Set<Chunk> chunkSet = user.getChunks();
                                 chunkSet.add(user.getActiveChunk());
                                 user.setSQLChunks(chunkSet);
-                                user.setSQLNumber(user.getMultiplier() + 0.1, "MULTIPLIER");
+                                user.setSQLNumber(user.getMultiplier() + 0.01, "MULTIPLIER");
                                 sender.sendMessage("You have purchased this chunk!");
                                 user.rmHologram();
                                 user.setActiveChunk(null);
@@ -91,16 +92,68 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                         sender.sendMessage("You have no chunks active for purchase!");
                         return true;
                     }
+                } else if (args[1].equals("stats")) {
+                    showStats(user, sender);
+                    if (args.length == 3) {
+                        try {
+                            targetPlayer = plugin.matchPlayer(args[2]);
+                            if (targetPlayer == null) {
+                                sender.sendMessage("Player not found");
+                                return true;
+                            }
+                            targetUser = plugin.matchUser(targetPlayer);
+                        } catch (NoSuchElementException exception) {
+                            sender.sendMessage("Player not found, this seems to be a bug!");
+                            plugin.getServer().getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
+                            return true;
+                        }
+                        showStats(targetUser, sender);
+                    }
+                    return true;
                 }
             }
         }
-
-
         return true;
     }
 
-    public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {
+    public void showStats(User user, CommandSender sender) {
+        Player player = user.getPlayer();
+        sender.sendMessage(
+                String.format("""
+                                %s: STATS
+                                Level: %.0f
+                                Points: %.0f
+                                Experience: [%.0f / %.0f]
+                                Multiplier: %.2f
+                                Owned Chunks: %d        
+                                """, player.getDisplayName(), user.getLevel(), user.getPoints(), user.getCurrentExp(),
+                        user.getNeededExp(), user.getMultiplier(), user.getChunks().size())
+        );
 
+    }
+
+    public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {
+        List<String> tabHints = new ArrayList<>();
+        if (command.getName().equalsIgnoreCase("mergecraft")) {
+            switch (args.length) {
+                case 1:
+                    tabHints.addAll(Arrays.asList("show", "buy", "shop"));
+                    return tabHints;
+                case 2:
+                    if (args[0].equals("show")) {
+                        tabHints.addAll(Collections.singletonList("stats"));
+                    } else if (args[0].equals("buy")) {
+                        tabHints.addAll(Collections.singletonList("chunk"));
+                    }
+                    return tabHints;
+                case 3:
+                    if (args[1].equals("stats")) {
+                        return null;
+                    }
+                default:
+                    return tabHints;
+            }
+        }
         return null;
     }
 }

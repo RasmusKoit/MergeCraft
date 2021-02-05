@@ -69,9 +69,6 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                     sender.sendMessage("Player not found, this seems to be a bug!");
                     plugin.getServer().getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
                     return true;
-                } catch (NumberFormatException exception) {
-                    sender.sendMessage("not valid number");
-                    return false;
                 }
                 if (args.length == 3) {
                     if (targetPlayer == sender) {
@@ -79,7 +76,12 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                         return true;
                     }
                     user = plugin.matchUser((Player) sender);
-                    amount = Double.parseDouble(args[2]);
+                    try {
+                        amount = Double.parseDouble(args[2]);
+                    } catch (NumberFormatException exception) {
+                        sender.sendMessage("not valid number");
+                        return false;
+                    }
                     if (amount <= 0) {
                         sender.sendMessage("neg number");
                         return false;
@@ -133,8 +135,7 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
         if (command.getName().equalsIgnoreCase("points")) {
             switch (args.length) {
                 case 1:
-                    String[] commandHints = new String[]{"show", "give"};
-                    tabHints.addAll(Arrays.asList(commandHints));
+                    tabHints.addAll(Arrays.asList("show", "give"));
                     return tabHints;
                 case 2:
                     return null;
