@@ -2,8 +2,7 @@ package eu.ialbhost.mergecraft.listeners;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.gmail.filoghost.holographicdisplays.api.line.ItemLine;
-import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
+import eu.ialbhost.mergecraft.ChunkData;
 import eu.ialbhost.mergecraft.MergeCraft;
 import eu.ialbhost.mergecraft.User;
 import org.bukkit.Chunk;
@@ -42,29 +41,36 @@ public final class PlayerListener implements Listener {
         Location fromLocation = event.getFrom();
 
         if (fromLocation.getChunk() != toLocation.getChunk()) {
-            if (user.hasChunk(toLocation.getChunk())) {
-                player.sendMessage("You can access this chunk");
-            } else {
+            if (!user.hasChunk(toLocation.getChunk())) {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - this.timeMs >= 5000) {
                     player.sendMessage("You CANT access this chunk");
                     setTimestamp(currentTime);
+                    hologram = user.getHologram();
                     if (hologram != null) {
-                        hologram.delete();
+                        user.rmHologram();
                     }
-                    Location middleChunkBlock = toLocation.getChunk().getBlock(8, (int) player.getLocation().getY(), 8).getLocation();
-                    setHologram(HologramsAPI.createHologram(plugin, middleChunkBlock.add(0.0, 3.0, 0.0)));
-                    TextLine textLine = hologram.appendTextLine("Purchase this chunk");
-                    TextLine textLine3 = hologram.appendTextLine("/mc buy chunk");
-                    TextLine textLine4 = hologram.appendTextLine("Cost: " + (user.getChunks().size() * 1000) + " points");
+                    ChunkData fromChunk = new ChunkData(fromLocation.getChunk().getX(), fromLocation.getChunk().getZ());
+                    ChunkData toChunk = new ChunkData(toLocation.getChunk().getX(), toLocation.getChunk().getZ());
+                    ChunkData placeInto = ChunkData.getDirection(fromChunk, toChunk);
+                    if (placeInto != null) {
+                        Location middleChunkBlock = toLocation.getChunk().getBlock(placeInto.getX(), (int) player.getLocation().getY(), placeInto.getZ()).getLocation();
+                        user.setHologram(HologramsAPI.createHologram(plugin, middleChunkBlock.add(0.0, 3.0, 0.0)));
+                        hologram = user.getHologram();
+                        hologram.appendTextLine("Purchase this chunk").setTouchHandler(p -> p.performCommand("mc buy chunk"));
+                        hologram.appendTextLine("Click me to purchase").setTouchHandler(p -> p.performCommand("mc buy chunk"));
+                        hologram.appendTextLine("or").setTouchHandler(p -> p.performCommand("mc buy chunk"));
+                        hologram.appendTextLine("/mc buy chunk").setTouchHandler(p -> p.performCommand("mc buy chunk"));
+                        hologram.appendTextLine("Cost: " + (user.getChunks().size() * 1000) + " points")
+                                .setTouchHandler(p -> p.performCommand("mc buy chunk"));
 
-                    TextLine textLine1 = hologram.appendTextLine("...");
-                    TextLine textLine2 = hologram.insertTextLine(0, "...");
+                        hologram.appendTextLine("...");
+                        hologram.insertTextLine(0, "...");
 
-                    ItemLine itemLine1 = hologram.appendItemLine(new ItemStack(Material.STONE));
-                    ItemLine itemLine2 = hologram.insertItemLine(0, new ItemStack(Material.STONE));
-                    user.setActiveChunk(toLocation.getChunk());
-
+                        hologram.appendItemLine(new ItemStack(Material.STONE));
+                        hologram.insertItemLine(0, new ItemStack(Material.STONE));
+                        user.setActiveChunk(toLocation.getChunk());
+                    }
 
                 }
                 event.setCancelled(true);
@@ -122,7 +128,6 @@ public final class PlayerListener implements Listener {
         Player player = event.getPlayer();
         User user = plugin.matchUser(player);
         if (user.getChunks() == null) {
-            player.sendMessage("Your chunks was null!");
             Set<Chunk> chunkSet = new HashSet<>(1);
             chunkSet.add(event.getPlayer().getChunk());
             try {
@@ -138,6 +143,8 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onServerLeave(PlayerQuitEvent event) {
         User user = plugin.matchUser(event.getPlayer());
+        user.rmHologram();
+
         plugin.removeUser(user);
     }
 }

@@ -75,6 +75,8 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                                 chunkSet.add(user.getActiveChunk());
                                 user.setSQLChunks(chunkSet);
                                 sender.sendMessage("You have purchased this chunk!");
+                                user.rmHologram();
+                                user.setActiveChunk(null);
                                 return true;
                             } catch (SQLException exception) {
                                 user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Purchasing chunk failed");

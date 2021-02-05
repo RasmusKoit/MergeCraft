@@ -1,5 +1,6 @@
 package eu.ialbhost.mergecraft;
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.google.gson.Gson;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -27,6 +28,7 @@ public class User {
     private Double neededExp;
     private Double multiplier;
     private Chunk activeChunk;
+    private Hologram hologram;
 
 
     public User(Player player) {
@@ -66,7 +68,6 @@ public class User {
         List<ChunkData> chunkDataList = new ArrayList<>(chunks.size());
         for (Chunk chunk : chunks) {
             ChunkData data = new ChunkData(chunk.getX(), chunk.getZ());
-            this.player.sendMessage();
             chunkDataList.add(data);
         }
         return GSON.toJson(chunkDataList);
@@ -251,5 +252,18 @@ public class User {
 
     public void setActiveChunk(Chunk chunk) {
         this.activeChunk = chunk;
+    }
+
+    public Hologram getHologram() {
+        return this.hologram;
+    }
+
+    public void setHologram(Hologram hologram) {
+        this.hologram = hologram;
+    }
+
+    public void rmHologram() {
+        this.hologram.delete();
+        this.hologram = null;
     }
 }
