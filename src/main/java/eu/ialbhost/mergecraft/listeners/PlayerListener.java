@@ -26,7 +26,6 @@ import java.util.logging.Level;
 public final class PlayerListener implements Listener {
     private final MergeCraft plugin;
     private long timeMs = System.currentTimeMillis();
-    private Hologram hologram;
 
     public PlayerListener(MergeCraft plugin) {
         this.plugin = plugin;
@@ -46,7 +45,7 @@ public final class PlayerListener implements Listener {
                 if (currentTime - this.timeMs >= 5000) {
                     player.sendMessage("You CANT access this chunk");
                     setTimestamp(currentTime);
-                    hologram = user.getHologram();
+                    Hologram hologram = user.getHologram();
                     if (hologram != null) {
                         user.rmHologram();
                     }
@@ -78,9 +77,6 @@ public final class PlayerListener implements Listener {
         }
     }
 
-    private void setHologram(Hologram hologram) {
-        this.hologram = hologram;
-    }
 
     private void setTimestamp(long currentTimeMillis) {
         this.timeMs = currentTimeMillis;
