@@ -235,14 +235,6 @@ public class User {
             setNeededExp(exp.calcExperienceNeeded(level));
         }
         setSQLNumber(experience, "CURRENT_EXP");
-        setCurrentExp(experience);
-
-    }
-
-    public void addPoints(int value) throws SQLException {
-
-        setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
-        setPoints(getPoints() + (value * getMultiplier()));
 
     }
 

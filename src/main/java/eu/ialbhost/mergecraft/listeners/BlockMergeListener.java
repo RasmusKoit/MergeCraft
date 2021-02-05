@@ -3,6 +3,7 @@ package eu.ialbhost.mergecraft.listeners;
 import eu.ialbhost.mergecraft.Experience;
 import eu.ialbhost.mergecraft.MergeCraft;
 import eu.ialbhost.mergecraft.Recipe;
+import eu.ialbhost.mergecraft.User;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -93,7 +94,8 @@ public class BlockMergeListener implements Listener {
                 searchedBlocks.remove(removeBlock);
             }
             double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getExp(), value);
-            plugin.matchUser(player).addPoints(value);
+            User user = plugin.matchUser(player);
+            user.setSQLNumber(user.getPoints() + (value * user.getMultiplier()), "POINTS");
             player.sendMessage("You gained: " + xpGain);
             player.sendMessage("Merged " + placedBlockName.toLowerCase().replace("_", " ") +
                     " into " + value + " " +

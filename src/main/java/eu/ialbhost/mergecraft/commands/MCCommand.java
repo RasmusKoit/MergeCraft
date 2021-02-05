@@ -74,6 +74,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                                 Set<Chunk> chunkSet = user.getChunks();
                                 chunkSet.add(user.getActiveChunk());
                                 user.setSQLChunks(chunkSet);
+                                user.setSQLNumber(user.getMultiplier() + 0.1, "MULTIPLIER");
                                 sender.sendMessage("You have purchased this chunk!");
                                 user.rmHologram();
                                 user.setActiveChunk(null);
