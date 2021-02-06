@@ -1,4 +1,4 @@
-package eu.ialbhost.mergecraft;
+package eu.ialbhost.mergecraft.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

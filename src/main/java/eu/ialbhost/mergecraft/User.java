@@ -2,6 +2,7 @@ package eu.ialbhost.mergecraft;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.google.gson.Gson;
+import eu.ialbhost.mergecraft.database.SqlDAO;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 

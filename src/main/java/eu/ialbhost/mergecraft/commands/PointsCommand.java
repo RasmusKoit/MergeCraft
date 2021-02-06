@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
+import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+
+
 public class PointsCommand implements TabCompleter, CommandExecutor {
     private final MergeCraft plugin;
 
@@ -41,53 +44,58 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
         */
 
 
-        if (!sender.hasPermission("mergecraft.points.use")) {
-            sender.sendMessage("no perms");
+        if (!sender.hasPermission(PERM_POINTS_USE)) {
+            sender.sendMessage(MSG_NO_PERM);
             return true;
         }
 
         if (args.length >= 1) {
             if (!(args[0].equals("show") || args[0].equals("give"))) {
-                sender.sendMessage("wrong cmd");
+                sender.sendMessage(MSG_NO_CMD);
                 return false;
             }
-            if (!sender.hasPermission("mergecraft.points." + args[0])) {
-                sender.sendMessage("no perms");
+            //mergecraft.points.show or mergecraft.points.give
+            if (args[0].equals("show") && !sender.hasPermission(PERM_POINTS_SHOW)) {
+                sender.sendMessage(MSG_NO_PERM);
+                return true;
+            }
+            if (args[0].equals("give") && !sender.hasPermission(PERM_POINTS_GIVE)) {
+                sender.sendMessage(MSG_NO_PERM);
                 return true;
             }
             if (args.length >= 2) {
                 try {
                     targetPlayer = plugin.matchPlayer(args[1]);
                     if (targetPlayer == null) {
-                        sender.sendMessage("Player not found");
+                        sender.sendMessage(MSG_NO_PLAYER);
                         return true;
                     }
 
                     targetUser = plugin.matchUser(targetPlayer);
 
                 } catch (NoSuchElementException exception) {
-                    sender.sendMessage("Player not found, this seems to be a bug!");
-                    plugin.getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
+                    sender.sendMessage(MC_HDR + MSG_SQL_EXCEPTION_NO_PLAYER);
+                    plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_NO_PLAYER, exception);
                     return true;
                 }
                 if (args.length == 3) {
                     if (targetPlayer == sender) {
-                        sender.sendMessage("You can't give yourself points");
+                        sender.sendMessage(MSG_POINTS_SELF);
                         return true;
                     }
                     user = plugin.matchUser((Player) sender);
                     try {
                         amount = Double.parseDouble(args[2]);
                     } catch (NumberFormatException exception) {
-                        sender.sendMessage("not valid number");
+                        sender.sendMessage(MSG_INVALID_ARG);
                         return false;
                     }
                     if (amount <= 0) {
-                        sender.sendMessage("neg number");
+                        sender.sendMessage(MSG_NEG_NUMBER);
                         return false;
                     }
                     if (user.hasPoints(amount)) {
-                        sender.sendMessage("not enough points");
+                        sender.sendMessage(MSG_NO_POINTS);
                         return true;
                     }
                     // give command
@@ -96,21 +104,18 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                         user.setSQLNumber(user.getPoints() - amount, "POINTS");
                         // add target users points
                         targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
-                        sender.sendMessage("You have sent " + amount + " points to " + targetPlayer.getDisplayName());
-                        targetPlayer.sendMessage(((Player) sender).getDisplayName() + " has sent you " + amount + " points");
+                        sender.sendMessage(MSG_POINTS_SENT(amount, targetPlayer));
+                        targetPlayer.sendMessage(MSG_POINTS_RECEIVED(amount, (Player) sender));
                     } catch (SQLException exception) {
-                        targetPlayer.kickPlayer("[MergeCraft] SQL Exception: Setting points failed");
-                        user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Removing points failed");
-                        plugin.getLogger().log(Level.SEVERE,
-                                "SQL Exception setting/removing points for users", exception);
+                        targetPlayer.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_POINTS);
+                        user.getPlayer().kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_POINTS);
+                        plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_POINTS, exception);
                     }
                     // give command ending
                 } else {
 
                     // check command
-                    sender.sendMessage(targetPlayer.getDisplayName() + " has total of: " +
-                            targetUser.getPoints() + " points");
-
+                    sender.sendMessage(MSG_POINTS_SHOW_OTHER(targetUser));
                     // check command ending
                 }
                 return true;
@@ -118,17 +123,9 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
             }
         }
         user = plugin.matchUser((Player) sender);
-        sender.sendMessage("You have total of: " + user.getPoints() + " points!");
+        sender.sendMessage(MSG_POINTS_SHOW(user));
         return true;
     }
-
-
-    /*
-      /points [ cmd ][ <user> ][ amount ]
-      /points
-      /points  show     user
-      /points  give     user     100.0
-    */
 
     public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {
         List<String> tabHints = new ArrayList<>();
@@ -151,5 +148,6 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
         }
         return null;
     }
+
 
 }
