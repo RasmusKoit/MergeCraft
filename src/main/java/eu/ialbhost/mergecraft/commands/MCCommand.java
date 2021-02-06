@@ -104,7 +104,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                             targetUser = plugin.matchUser(targetPlayer);
                         } catch (NoSuchElementException exception) {
                             sender.sendMessage("Player not found, this seems to be a bug!");
-                            plugin.getServer().getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
+                            plugin.getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
                             return true;
                         }
                         showStats(targetUser, sender);
