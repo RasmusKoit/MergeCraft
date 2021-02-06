@@ -59,7 +59,7 @@ public class User {
             rs.close();
         } catch (SQLException exception) {
             player.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY);
-            player.getServer().getLogger().log(Level.SEVERE, MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY, exception);
+            MergeCraft.getInstance().getLogger().log(Level.SEVERE, MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY, exception);
         }
         return user;
     }

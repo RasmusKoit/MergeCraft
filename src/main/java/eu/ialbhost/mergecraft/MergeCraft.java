@@ -34,6 +34,7 @@ public class MergeCraft extends JavaPlugin {
     private final Set<Recipe> recipes = new HashSet<>();
     private final List<String> mergeAmounts = new ArrayList<>();
     private FileConfiguration recipeConfig;
+    private static MergeCraft instance;
 
 
     @Override
@@ -43,8 +44,13 @@ public class MergeCraft extends JavaPlugin {
 
     }
 
+    public static MergeCraft getInstance() {
+        return instance;
+    }
+
     @Override
     public void onEnable() {
+        instance = this;
         reloadConfigs();
         initializeDB();
         loadRecipes();
