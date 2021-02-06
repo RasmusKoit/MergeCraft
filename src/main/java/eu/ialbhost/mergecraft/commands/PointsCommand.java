@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
-import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+import static eu.ialbhost.mergecraft.Permissions.*;
+import static eu.ialbhost.mergecraft.Text.*;
 
 
 public class PointsCommand implements TabCompleter, CommandExecutor {
@@ -104,8 +105,8 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                         user.setSQLNumber(user.getPoints() - amount, "POINTS");
                         // add target users points
                         targetUser.setSQLNumber(targetUser.getPoints() + amount, "POINTS");
-                        sender.sendMessage(MSG_POINTS_SENT(amount, targetPlayer));
-                        targetPlayer.sendMessage(MSG_POINTS_RECEIVED(amount, (Player) sender));
+                        sender.sendMessage(msgPointsSent(amount, targetPlayer));
+                        targetPlayer.sendMessage(msgPointsReceived(amount, (Player) sender));
                     } catch (SQLException exception) {
                         targetPlayer.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_POINTS);
                         user.getPlayer().kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_POINTS);
@@ -115,7 +116,7 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                 } else {
 
                     // check command
-                    sender.sendMessage(MSG_POINTS_SHOW_OTHER(targetUser));
+                    sender.sendMessage(msgPointsShowOther(targetUser));
                     // check command ending
                 }
                 return true;
@@ -123,7 +124,7 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
             }
         }
         user = plugin.matchUser((Player) sender);
-        sender.sendMessage(MSG_POINTS_SHOW(user));
+        sender.sendMessage(msgPointsShow(user));
         return true;
     }
 

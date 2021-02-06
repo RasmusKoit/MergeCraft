@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
-import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+import static eu.ialbhost.mergecraft.Text.*;
 
 public class User {
     private final static Gson GSON = new Gson();
@@ -230,7 +230,7 @@ public class User {
 
         }
         if (level != getLevel()) {
-            getPlayer().sendMessage(MSG_LEVEL_UP(level));
+            getPlayer().sendMessage(msgLevelUp(level));
             setSQLNumber(level, "LEVEL");
             setSQLNumber(exp.calcExperienceNeeded(level), "NEEDED_EXP");
             setLevel(level);

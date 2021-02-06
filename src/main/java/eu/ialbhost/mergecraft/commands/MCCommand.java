@@ -14,7 +14,9 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
-import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+import static eu.ialbhost.mergecraft.Permissions.*;
+import static eu.ialbhost.mergecraft.Text.*;
+
 
 public class MCCommand implements TabCompleter, CommandExecutor {
     private final MergeCraft plugin;
@@ -69,7 +71,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
 
                 if (args[1].equals("chunk")) {
                     if (user.getActiveChunk() != null) {
-                        amount = user.getChunks().size() * 1000;
+                        amount = user.getChunks().size() * 200;
                         if (user.hasPoints(amount)) {
                             try {
                                 user.setSQLNumber(user.getPoints() - amount, "POINTS");
@@ -122,7 +124,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
     }
 
     public void showStats(User user, CommandSender sender) {
-        sender.sendMessage(MSG_MC_STATS(user));
+        sender.sendMessage(msgMCStats(user));
 
     }
 

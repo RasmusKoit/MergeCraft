@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+import static eu.ialbhost.mergecraft.Text.*;
 
 
 public class MergeCraft extends JavaPlugin {
@@ -141,7 +141,7 @@ public class MergeCraft extends JavaPlugin {
     private void registerCommand(String name, CommandExecutor executor) {
         PluginCommand command = this.getCommand(name);
         if (command == null) {
-            log.log(Level.WARNING, MSG_WARNING_CMD_NOT_FOUND(name));
+            log.log(Level.WARNING, msgWarningCmdNotFound(name));
             return;
         }
         command.setExecutor(executor);

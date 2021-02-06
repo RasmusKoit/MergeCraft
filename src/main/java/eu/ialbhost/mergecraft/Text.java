@@ -2,20 +2,7 @@ package eu.ialbhost.mergecraft;
 
 import org.bukkit.entity.Player;
 
-public final class Permissions_and_Text {
-    // points command permissions
-    public static final String PERM_POINTS_USE = "mergecraft.points.use";
-    public static final String PERM_POINTS_SHOW = "mergecraft.points.show";
-    public static final String PERM_POINTS_GIVE = "mergecraft.points.give";
-    // world related permissions
-    public static final String PERM_BONEMEAL_USE = "mergecraft.use.bonemeal";
-    // Mergecraft command permissions
-    public static final String PERM_MC_USE = "mergecraft.mc.use";
-    public static final String PERM_MC_CHUNK = "mergecraft.mc.chunk";
-    public static final String PERM_MC_SHOW = "mergecraft.mc.show";
-    public static final String PERM_MC_SHOW_OTHER = "mergecraft.mc.show.other";
-    public static final String PERM_MC_SHOP = "mergecraft.mc.shop";
-
+public class Text {
     // Permission related text
     // General
     public static final String MC_HDR = "[MergeCraft]: ";
@@ -41,48 +28,47 @@ public final class Permissions_and_Text {
     // Points cmd
     public static final String MSG_NO_POINTS = MC_HDR + "You don't have enough points!";
     public static final String MSG_POINTS_SELF = MC_HDR + "You cant give yourself points";
-
-    public static String MSG_LEVEL_UP(Double level) {
-        return (String.format(MC_HDR + "You have leveled up to level: %.0f", level));
-    }
-
     public static final String MSG_CHUNK_PURCHASE = MC_HDR + "You have purchased a chunk!";
     public static final String MSG_CHUNK_ACCESS = MC_HDR + "You can't access this chunk!";
 
-    public static String MSG_XP_GAIN(Double xpGain) {
+    public static String msgLevelUp(Double level) {
+        return String.format(MC_HDR + "You have leveled up to level: %.0f", level);
+    }
+
+    public static String msgXPGain(Double xpGain) {
         return (String.format(MC_HDR + "You gained: %.0f", xpGain));
     }
 
-    public static String MSG_MERGE_BLOCKS(String blockName, Integer value, Recipe recipe) {
-        return (String.format(MC_HDR + "Merged %s into %d %s",
+    public static String msgMergeBlocks(String blockName, Integer value, Recipe recipe) {
+        return String.format(MC_HDR + "Merged %s into %d %s",
                 blockName.toLowerCase().replace("_", " "),
                 value,
                 recipe.getMerge_to().toString().toLowerCase().replace("_", " ")
-        ));
+        );
     }
 
-    public static String MSG_WARNING_CMD_NOT_FOUND(String name) {
-        return ("This command: " + name + " is not found in plugin.yml");
+    public static String msgWarningCmdNotFound(String name) {
+        return "This command: " + name + " is not found in plugin.yml";
     }
 
-    public static String MSG_POINTS_SENT(Double amount, Player player) {
-        return (MC_HDR + "You have sent " + amount + " points to " + player.getDisplayName());
+    public static String msgPointsSent(Double amount, Player player) {
+        return MC_HDR + "You have sent " + amount + " points to " + player.getDisplayName();
     }
 
-    public static String MSG_POINTS_RECEIVED(Double amount, Player player) {
-        return (MC_HDR + player.getDisplayName() + " has sent you " + amount + " points");
+    public static String msgPointsReceived(Double amount, Player player) {
+        return MC_HDR + player.getDisplayName() + " has sent you " + amount + " points";
     }
 
-    public static String MSG_POINTS_SHOW_OTHER(User user) {
-        return (MC_HDR + user.getPlayer().getDisplayName() + " has total of: " + user.getPoints() + " points");
+    public static String msgPointsShowOther(User user) {
+        return MC_HDR + user.getPlayer().getDisplayName() + " has total of: " + user.getPoints() + " points";
     }
 
-    public static String MSG_POINTS_SHOW(User user) {
-        return (MC_HDR + "You have total of: " + user.getPoints() + " points");
+    public static String msgPointsShow(User user) {
+        return MC_HDR + "You have total of: " + user.getPoints() + " points";
     }
 
-    public static String MSG_MC_STATS(User user) {
-        return (String.format("""
+    public static String msgMCStats(User user) {
+        return String.format("""
                         %s: STATS
                         Level: %.0f
                         Points: %.0f
@@ -90,8 +76,6 @@ public final class Permissions_and_Text {
                         Multiplier: %.2f
                         Owned Chunks: %d
                         """, user.getPlayer().getDisplayName(), user.getLevel(), user.getPoints(),
-                user.getCurrentExp(), user.getNeededExp(), user.getMultiplier(), user.getChunks().size()));
+                user.getCurrentExp(), user.getNeededExp(), user.getMultiplier(), user.getChunks().size());
     }
-
-
 }

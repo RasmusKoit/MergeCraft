@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+import static eu.ialbhost.mergecraft.Text.*;
 
 public class BlockMergeListener implements Listener {
     private static final Set<BlockFace> DIRECTIONS = Set.of(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
@@ -98,8 +98,8 @@ public class BlockMergeListener implements Listener {
             double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getExp(), value);
             User user = plugin.matchUser(player);
             user.setSQLNumber(user.getPoints() + (value * user.getMultiplier()), "POINTS");
-            player.sendMessage(MSG_XP_GAIN(xpGain));
-            player.sendMessage(MSG_MERGE_BLOCKS(placedBlockName, value, recipe));
+            player.sendMessage(msgXPGain(xpGain));
+            player.sendMessage(msgMergeBlocks(placedBlockName, value, recipe));
         }
 
     }

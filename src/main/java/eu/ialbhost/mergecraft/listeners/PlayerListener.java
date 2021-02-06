@@ -22,7 +22,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 
-import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+import static eu.ialbhost.mergecraft.Permissions.PERM_BONEMEAL_USE;
+import static eu.ialbhost.mergecraft.Text.*;
 
 
 public final class PlayerListener implements Listener {
@@ -62,7 +63,7 @@ public final class PlayerListener implements Listener {
                         hologram.appendTextLine("Click me to purchase").setTouchHandler(p -> p.performCommand("mc buy chunk"));
                         hologram.appendTextLine("or").setTouchHandler(p -> p.performCommand("mc buy chunk"));
                         hologram.appendTextLine("/mc buy chunk").setTouchHandler(p -> p.performCommand("mc buy chunk"));
-                        hologram.appendTextLine("Cost: " + (user.getChunks().size() * 1000) + " points")
+                        hologram.appendTextLine("Cost: " + (user.getChunks().size() * 200) + " points")
                                 .setTouchHandler(p -> p.performCommand("mc buy chunk"));
 
                         hologram.appendTextLine("...");
