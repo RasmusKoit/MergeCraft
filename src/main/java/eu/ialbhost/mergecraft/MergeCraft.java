@@ -147,7 +147,7 @@ public class MergeCraft extends JavaPlugin {
         }
     }
 
-
+    @SuppressWarnings("unused")
     public boolean checkPlayer(CommandSender sender) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute that command, you need to be a player!");
@@ -155,10 +155,6 @@ public class MergeCraft extends JavaPlugin {
         }
 
         return false;
-    }
-
-    public Set<Recipe> getRecipes() {
-        return this.recipes;
     }
 
     public User matchUser(Player player) {
@@ -179,10 +175,6 @@ public class MergeCraft extends JavaPlugin {
 
     public void removeUser(User user) {
         this.users.remove(user);
-    }
-
-    public Set<User> getUsers() {
-        return this.users;
     }
 
     public Player matchPlayer(String playerUUID) {

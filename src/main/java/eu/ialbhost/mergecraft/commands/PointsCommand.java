@@ -67,7 +67,7 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
 
                 } catch (NoSuchElementException exception) {
                     sender.sendMessage("Player not found, this seems to be a bug!");
-                    plugin.getServer().getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
+                    plugin.getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
                     return true;
                 }
                 if (args.length == 3) {
@@ -101,7 +101,7 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                     } catch (SQLException exception) {
                         targetPlayer.kickPlayer("[MergeCraft] SQL Exception: Setting points failed");
                         user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Removing points failed");
-                        sender.getServer().getLogger().log(Level.SEVERE,
+                        plugin.getLogger().log(Level.SEVERE,
                                 "SQL Exception setting/removing points for users", exception);
                     }
                     // give command ending

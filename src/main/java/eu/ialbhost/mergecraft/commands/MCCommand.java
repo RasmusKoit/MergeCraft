@@ -82,7 +82,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                                 return true;
                             } catch (SQLException exception) {
                                 user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Purchasing chunk failed");
-                                sender.getServer().getLogger().log(Level.SEVERE,
+                                plugin.getLogger().log(Level.SEVERE,
                                         "SQL Exception purchasing chunk failed", exception);
                             }
                         } else {

@@ -6,10 +6,7 @@ import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -59,12 +56,12 @@ public class User {
             rs.close();
         } catch (SQLException exception) {
             player.kickPlayer("[MergeCraft] SQL Exception: Get user query failed");
-            player.getServer().getLogger().log(Level.SEVERE, "SQL Exception while searhing for user", exception);
+            player.getServer().getLogger().log(Level.SEVERE, "[MergeCraft] SQL Exception while searhing for user", exception);
         }
         return user;
     }
 
-    public String chunksToStr(Set<Chunk> chunks) {
+    public static String chunksToStr(Set<Chunk> chunks) {
         List<ChunkData> chunkDataList = new ArrayList<>(chunks.size());
         for (Chunk chunk : chunks) {
             ChunkData data = new ChunkData(chunk.getX(), chunk.getZ());
@@ -82,7 +79,7 @@ public class User {
              PreparedStatement pst = con.prepareStatement(sqlString)) {
             pst.setString(1, getPlayer().getUniqueId().toString());
             pst.setDouble(2, getPoints());
-            pst.setNull(3, 2004);
+            pst.setNull(3, Types.NULL);
             pst.setDouble(4, getLevel());
             pst.setDouble(5, getCurrentExp());
             pst.setDouble(6, getNeededExp());

@@ -35,7 +35,8 @@ dependencies {
 val shadowJar by tasks.getting(ShadowJar::class) {
     val relocations = listOf(
             "com.zaxxer.hikari",
-            "cloud.commandframework"
+            "cloud.commandframework",
+            "net.kyori"
     )
     val targetPackage = "eu.ialbhost.mergecraft.lib"
 

@@ -103,19 +103,21 @@ public final class PlayerListener implements Listener {
         //Initialize player
         Player player = event.getPlayer();
         User user = User.getSQLUser(player);
-        plugin.getLogger().log(Level.INFO, player.getDisplayName() + ": chunk is " + player.getChunk().toString());
+        plugin.getLogger().log(Level.INFO, "%s: chunk is %s",
+                new Object[]{player.getDisplayName(), player.getChunk().toString()});
         if (user == null) { // user wasn't found in DB, lets add him to DB
             try {
                 user = new User(player);
                 user.initSQLUser();
             } catch (SQLException exception) {
                 event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "SQL Exception: User initialization failed");
-                plugin.getServer().getLogger().log(Level.SEVERE, "User initialization failed", exception);
+                plugin.getLogger().log(Level.SEVERE, "User initialization failed", exception);
             }
         }
         plugin.addUser(user);
 
-        plugin.getLogger().log(Level.INFO, player.getDisplayName() + ": chunk is " + player.getChunk().toString());
+        plugin.getLogger().log(Level.INFO, "%s: chunk is %s",
+                new Object[]{player.getDisplayName(), player.getChunk().toString()});
 
     }
 
@@ -130,7 +132,7 @@ public final class PlayerListener implements Listener {
                 user.setSQLChunks(chunkSet);
             } catch (SQLException | NoSuchElementException exception) {
                 player.kickPlayer("User initialization failed, please try again");
-                plugin.getServer().getLogger().log(Level.SEVERE, "User initialization failed, setting chunks", exception);
+                plugin.getLogger().log(Level.SEVERE, "User initialization failed, setting chunks", exception);
             }
 
         }
