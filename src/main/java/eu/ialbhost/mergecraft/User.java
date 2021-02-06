@@ -1,14 +1,12 @@
 package eu.ialbhost.mergecraft;
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.google.gson.Gson;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,18 +24,17 @@ public class User {
     private Double currentExp;
     private Double neededExp;
     private Double multiplier;
+    private Chunk activeChunk;
+    private Hologram hologram;
 
 
     public User(Player player) {
-        this(player, 0.0, new HashSet<>(), 1.0, 0.0, 100.0, 1.0);
+        this(player, 0.0, null, 1.0, 0.0, 100.0, 1.0);
     }
 
     public User(Player player, Double points, Set<Chunk> chunks, Double level, Double currentExp, Double neededExp, Double multiplier) {
         this.player = player;
         this.points = points;
-        if (chunks.isEmpty()) {
-            chunks.add(player.getChunk());
-        }
         this.chunks = chunks;
         this.level = level;
         this.currentExp = currentExp;
@@ -59,7 +56,7 @@ public class User {
             rs.close();
         } catch (SQLException exception) {
             player.kickPlayer("[MergeCraft] SQL Exception: Get user query failed");
-            player.getServer().getLogger().log(Level.SEVERE, "SQL Exception while searhing for user", exception);
+            player.getServer().getLogger().log(Level.SEVERE, "[MergeCraft] SQL Exception while searhing for user", exception);
         }
         return user;
     }
@@ -73,25 +70,22 @@ public class User {
         return GSON.toJson(chunkDataList);
     }
 
-    public static User initSQLUser(Player player) throws SQLException {
-        User user = new User(player);
+    public void initSQLUser() throws SQLException {
         String sqlString = """
                 INSERT INTO USER
                 (UUID, POINTS, CHUNKS, LEVEL, CURRENT_EXP, NEEDED_EXP, MULTIPLIER) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)""";
         try (Connection con = SqlDAO.getConnection();
              PreparedStatement pst = con.prepareStatement(sqlString)) {
-            pst.setString(1, user.getPlayer().getUniqueId().toString());
-            pst.setDouble(2, user.getPoints());
-            pst.setString(3, chunksToStr(user.getChunks()));
-            pst.setDouble(4, user.getLevel());
-            pst.setDouble(5, user.getCurrentExp());
-            pst.setDouble(6, user.getNeededExp());
-            pst.setDouble(7, user.getMultiplier());
+            pst.setString(1, getPlayer().getUniqueId().toString());
+            pst.setDouble(2, getPoints());
+            pst.setNull(3, Types.NULL);
+            pst.setDouble(4, getLevel());
+            pst.setDouble(5, getCurrentExp());
+            pst.setDouble(6, getNeededExp());
+            pst.setDouble(7, getMultiplier());
             pst.executeUpdate();
         }
-
-        return user;
     }
 
     public Player getPlayer() {
@@ -154,10 +148,13 @@ public class User {
         setMultiplier(rs.getDouble("MULTIPLIER"));
         HashSet<Chunk> chunkSet = new HashSet<>();
         ChunkData[] chunkData = GSON.fromJson(rs.getString("CHUNKS"), (Type) ChunkData[].class);
-        for (ChunkData data : chunkData) {
-            chunkSet.add(data.toChunk(player.getWorld()));
+        if (chunkData != null) {
+            for (ChunkData data : chunkData) {
+                chunkSet.add(data.toChunk(player.getWorld()));
+            }
+            setChunks(chunkSet);
         }
-        setChunks(chunkSet);
+
     }
 
     public void setSQLNumber(Double amount, String col) throws SQLException {
@@ -174,11 +171,11 @@ public class User {
         }
     }
 
-    public void setSQLChunks(Set<Chunk> chunkSet, String col) throws SQLException {
-        String sqlString = String.format("""
+    public void setSQLChunks(Set<Chunk> chunkSet) throws SQLException {
+        String sqlString = """
                 UPDATE USER
-                SET %s = ?
-                WHERE UUID=?""", col);
+                SET CHUNKS = ?
+                WHERE UUID=?""";
         try (Connection con = SqlDAO.getConnection();
              PreparedStatement pst = con.prepareStatement(sqlString)) {
             pst.setString(1, chunksToStr(chunkSet));
@@ -203,6 +200,10 @@ public class User {
     public boolean hasChunk(Chunk chunk) {
         return getChunks().contains(chunk);
 
+    }
+
+    public boolean hasPoints(double amount) {
+        return getPoints() - amount >= 0;
     }
 
     private boolean getNewLevel(double experience, double needed_exp, double level) {
@@ -231,14 +232,27 @@ public class User {
             setNeededExp(exp.calcExperienceNeeded(level));
         }
         setSQLNumber(experience, "CURRENT_EXP");
-        setCurrentExp(experience);
 
     }
 
-    public void addPoints(int value) throws SQLException {
+    public Chunk getActiveChunk() {
+        return this.activeChunk;
+    }
 
-        setSQLNumber(getPoints() + (value * getMultiplier()), "POINTS");
-        setPoints(getPoints() + (value * getMultiplier()));
+    public void setActiveChunk(Chunk chunk) {
+        this.activeChunk = chunk;
+    }
 
+    public Hologram getHologram() {
+        return this.hologram;
+    }
+
+    public void setHologram(Hologram hologram) {
+        this.hologram = hologram;
+    }
+
+    public void rmHologram() {
+        this.hologram.delete();
+        this.hologram = null;
     }
 }

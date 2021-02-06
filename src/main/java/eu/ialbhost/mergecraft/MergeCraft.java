@@ -1,6 +1,7 @@
 package eu.ialbhost.mergecraft;
 
-import eu.ialbhost.mergecraft.commands.Points;
+import eu.ialbhost.mergecraft.commands.MCCommand;
+import eu.ialbhost.mergecraft.commands.PointsCommand;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
@@ -47,7 +48,8 @@ public class MergeCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
-        registerCommand("points", new Points(this));
+        registerCommand("points", new PointsCommand(this));
+        registerCommand("mergecraft", new MCCommand(this));
 
 
     }
@@ -145,6 +147,7 @@ public class MergeCraft extends JavaPlugin {
         }
     }
 
+    @SuppressWarnings("unused")
     public boolean checkPlayer(CommandSender sender) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute that command, you need to be a player!");
@@ -152,10 +155,6 @@ public class MergeCraft extends JavaPlugin {
         }
 
         return false;
-    }
-
-    public Set<Recipe> getRecipes() {
-        return this.recipes;
     }
 
     public User matchUser(Player player) {
@@ -178,12 +177,8 @@ public class MergeCraft extends JavaPlugin {
         this.users.remove(user);
     }
 
-    public Set<User> getUsers() {
-        return this.users;
-    }
-
-    public Player matchPlayer(String[] split) {
-        List<Player> players = getServer().matchPlayer(split[0]);
+    public Player matchPlayer(String playerUUID) {
+        List<Player> players = getServer().matchPlayer(playerUUID);
         return players.isEmpty()
                 ? null
                 : players.get(0);
