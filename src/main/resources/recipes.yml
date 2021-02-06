@@ -249,6 +249,10 @@ recipes:
       merge_from: FIRE_CORAL_FAN
       merge_to: HORN_CORAL_FAN
       exp: 14323.0
+  - recipe:
+      merge_from: DRAGON_EGG
+      merge_to: AIR
+      exp: 15000.0
 amounts:
   - 3=1
   - 5=2

@@ -97,9 +97,14 @@ public class BlockMergeListener implements Listener {
             }
             double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getExp(), value);
             User user = plugin.matchUser(player);
-            user.setSQLNumber(user.getPoints() + (value * user.getMultiplier()), "POINTS");
+            user.setSQLNumber(user.getPoints() + (value * user.getMultiplier()) + (value * 1.0), "POINTS");
+            if (Material.matchMaterial(placedBlockName) == Material.DRAGON_EGG) {
+                user.setSQLNumber(user.getMultiplier() + (1.50 * (double) value), "MULTIPLIER");
+                player.sendMessage(msgMergeDragonEggs(user));
+            } else {
+                player.sendMessage(msgMergeBlocks(placedBlockName, value, recipe));
+            }
             player.sendMessage(msgXPGain(xpGain));
-            player.sendMessage(msgMergeBlocks(placedBlockName, value, recipe));
         }
 
     }

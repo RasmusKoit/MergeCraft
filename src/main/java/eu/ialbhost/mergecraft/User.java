@@ -210,7 +210,7 @@ public class User {
     }
 
     private boolean getNewLevel(double experience, double needed_exp, double level) {
-        if (level <= exp.getMaxLevel()) {
+        if (level < exp.getMaxLevel()) {
             return experience >= needed_exp;
         }
 

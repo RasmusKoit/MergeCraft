@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 
 public class WorldListener implements Listener {
     private final MergeCraft plugin;
@@ -21,4 +22,13 @@ public class WorldListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void dragonEggTpEvent(BlockFromToEvent event) {
+        if (event.getBlock().getType().equals(Material.DRAGON_EGG)) {
+            event.setCancelled(true);
+        }
+    }
+
+
 }

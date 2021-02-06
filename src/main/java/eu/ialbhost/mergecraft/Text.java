@@ -47,6 +47,10 @@ public class Text {
         );
     }
 
+    public static String msgMergeDragonEggs(User user) {
+        return String.format(MC_HDR + "You have merged dragons! Your multiplier has been increased to: %.2f", user.getMultiplier());
+    }
+
     public static String msgWarningCmdNotFound(String name) {
         return "This command: " + name + " is not found in plugin.yml";
     }
