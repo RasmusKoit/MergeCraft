@@ -8,7 +8,7 @@ public class Experience {
     experience needed for level = (100*level)**
     */
     private final static double LEVEL_CONSTANT = 1.765776;
-    private final static double MAX_LEVEL = 50.0;
+    private final static double MAX_LEVEL = 100.0;
 
     public Experience() {
     }
