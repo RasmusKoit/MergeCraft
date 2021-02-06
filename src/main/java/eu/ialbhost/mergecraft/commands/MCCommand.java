@@ -14,6 +14,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
+import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+
 public class MCCommand implements TabCompleter, CommandExecutor {
     private final MergeCraft plugin;
 
@@ -31,38 +33,37 @@ public class MCCommand implements TabCompleter, CommandExecutor {
         Player targetPlayer;
         User targetUser;
 
-        // TODO: correct permissions to use mergecraft command
-        if (!sender.hasPermission("mergecraft.points.use")) {
-            sender.sendMessage("no perms");
+        if (!sender.hasPermission(PERM_MC_USE)) {
+            sender.sendMessage(MSG_NO_PERM);
             return true;
         }
 
         if (args.length >= 1) {
             if (!(args[0].equals("buy") || args[0].equals("show") || args[0].equals("shop"))) {
-                sender.sendMessage("wrong cmd");
+                sender.sendMessage(MSG_NO_CMD);
                 return false;
             }
 
             if (args.length >= 2) {
                 if (args[0].equals("buy") && !args[1].equals("chunk")) {
-                    sender.sendMessage("wrong cmd");
+                    sender.sendMessage(MSG_NO_CMD);
                     return false;
                 } else if (args[0].equals("show") && !args[1].equals("stats")) {
-                    sender.sendMessage("wrong cmd");
+                    sender.sendMessage(MSG_NO_CMD);
                     return false;
                 } else if (args[0].equals("shop")) {
-                    sender.sendMessage("wrong cmd");
+                    sender.sendMessage(MSG_NO_CMD);
                     return false;
                 }
 
-                if (args[1].equals("chunk") && !sender.hasPermission("mergecraft.chunk.buy")) {
-                    sender.sendMessage("no perms");
+                if (args[1].equals("chunk") && !sender.hasPermission(PERM_MC_CHUNK)) {
+                    sender.sendMessage(MSG_NO_PERM);
                     return true;
-                } else if (args[1].equals("stats") && !sender.hasPermission("mergecraft.show.stats")) {
-                    sender.sendMessage("no perms");
+                } else if (args[1].equals("stats") && !sender.hasPermission(PERM_MC_SHOW)) {
+                    sender.sendMessage(MSG_NO_PERM);
                     return true;
-                } else if (args[0].equals("shop") && !sender.hasPermission("mergecraft.use.shop")) {
-                    sender.sendMessage("no perms");
+                } else if (args[0].equals("shop") && !sender.hasPermission(PERM_MC_SHOP)) {
+                    sender.sendMessage(MSG_NO_PERM);
                     return true;
                 }
 
@@ -76,35 +77,39 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                                 chunkSet.add(user.getActiveChunk());
                                 user.setSQLChunks(chunkSet);
                                 user.setSQLNumber(user.getMultiplier() + 0.01, "MULTIPLIER");
-                                sender.sendMessage("You have purchased this chunk!");
+                                sender.sendMessage(MSG_CHUNK_PURCHASE);
                                 user.rmHologram();
                                 user.setActiveChunk(null);
                                 return true;
                             } catch (SQLException exception) {
-                                user.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Purchasing chunk failed");
+                                user.getPlayer().kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_CHUNK_PURCHASE);
                                 plugin.getLogger().log(Level.SEVERE,
-                                        "SQL Exception purchasing chunk failed", exception);
+                                        MSG_SQL_EXCEPTION_CHUNK_PURCHASE, exception);
                             }
                         } else {
-                            sender.sendMessage("You don't have enough points!");
+                            sender.sendMessage(MSG_NO_POINTS);
                         }
                     } else {
-                        sender.sendMessage("You have no chunks active for purchase!");
+                        sender.sendMessage(MSG_NO_ACTIVE_CHUNK);
                         return true;
                     }
                 } else if (args[1].equals("stats")) {
                     showStats(user, sender);
                     if (args.length == 3) {
+                        if (!sender.hasPermission(PERM_MC_SHOW_OTHER)) {
+                            sender.sendMessage(MSG_NO_PERM);
+                            return true;
+                        }
                         try {
                             targetPlayer = plugin.matchPlayer(args[2]);
                             if (targetPlayer == null) {
-                                sender.sendMessage("Player not found");
+                                sender.sendMessage(MSG_NO_PLAYER);
                                 return true;
                             }
                             targetUser = plugin.matchUser(targetPlayer);
                         } catch (NoSuchElementException exception) {
-                            sender.sendMessage("Player not found, this seems to be a bug!");
-                            plugin.getLogger().log(Level.SEVERE, "No matching user found, when player exists!", exception);
+                            sender.sendMessage(MC_HDR + MSG_SQL_EXCEPTION_NO_PLAYER);
+                            plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_NO_PLAYER, exception);
                             return true;
                         }
                         showStats(targetUser, sender);
@@ -117,18 +122,7 @@ public class MCCommand implements TabCompleter, CommandExecutor {
     }
 
     public void showStats(User user, CommandSender sender) {
-        Player player = user.getPlayer();
-        sender.sendMessage(
-                String.format("""
-                                %s: STATS
-                                Level: %.0f
-                                Points: %.0f
-                                Experience: [%.0f / %.0f]
-                                Multiplier: %.2f
-                                Owned Chunks: %d        
-                                """, player.getDisplayName(), user.getLevel(), user.getPoints(), user.getCurrentExp(),
-                        user.getNeededExp(), user.getMultiplier(), user.getChunks().size())
-        );
+        sender.sendMessage(MSG_MC_STATS(user));
 
     }
 

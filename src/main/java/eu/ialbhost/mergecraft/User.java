@@ -2,6 +2,7 @@ package eu.ialbhost.mergecraft;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.google.gson.Gson;
+import eu.ialbhost.mergecraft.database.SqlDAO;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
@@ -12,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+
+import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
 
 public class User {
     private final static Gson GSON = new Gson();
@@ -55,8 +58,8 @@ public class User {
             }
             rs.close();
         } catch (SQLException exception) {
-            player.kickPlayer("[MergeCraft] SQL Exception: Get user query failed");
-            player.getServer().getLogger().log(Level.SEVERE, "[MergeCraft] SQL Exception while searhing for user", exception);
+            player.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY);
+            player.getServer().getLogger().log(Level.SEVERE, MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY, exception);
         }
         return user;
     }
@@ -227,7 +230,7 @@ public class User {
 
         }
         if (level != getLevel()) {
-            getPlayer().sendMessage(String.format("You have leveled up to level: %.0f", level));
+            getPlayer().sendMessage(MSG_LEVEL_UP(level));
             setSQLNumber(level, "LEVEL");
             setSQLNumber(exp.calcExperienceNeeded(level), "NEEDED_EXP");
             setLevel(level);

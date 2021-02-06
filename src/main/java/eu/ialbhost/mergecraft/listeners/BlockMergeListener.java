@@ -20,6 +20,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import static eu.ialbhost.mergecraft.Permissions_and_Text.*;
+
 public class BlockMergeListener implements Listener {
     private static final Set<BlockFace> DIRECTIONS = Set.of(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
 
@@ -68,8 +70,8 @@ public class BlockMergeListener implements Listener {
             try {
                 mergeIfNeeded(placedBlock, event.getPlayer());
             } catch (SQLException exception) {
-                event.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Failed merging blocks");
-                plugin.getLogger().log(Level.SEVERE, "Failed placing blocks", exception);
+                event.getPlayer().kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_MERGE_BLOCKS);
+                plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_MERGE_BLOCKS, exception);
             }
         }
     }
@@ -96,10 +98,8 @@ public class BlockMergeListener implements Listener {
             double xpGain = exp.calculateExpEarned(plugin.matchUser(player), recipe.getExp(), value);
             User user = plugin.matchUser(player);
             user.setSQLNumber(user.getPoints() + (value * user.getMultiplier()), "POINTS");
-            player.sendMessage(String.format("You gained: %.0f", xpGain));
-            player.sendMessage("Merged " + placedBlockName.toLowerCase().replace("_", " ") +
-                    " into " + value + " " +
-                    recipe.getMerge_to().toString().toLowerCase().replace("_", " "));
+            player.sendMessage(MSG_XP_GAIN(xpGain));
+            player.sendMessage(MSG_MERGE_BLOCKS(placedBlockName, value, recipe));
         }
 
     }
