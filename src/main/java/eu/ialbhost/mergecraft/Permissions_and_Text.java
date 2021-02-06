@@ -43,18 +43,18 @@ public final class Permissions_and_Text {
     public static final String MSG_POINTS_SELF = MC_HDR + "You cant give yourself points";
 
     public static String MSG_LEVEL_UP(Double level) {
-        return (String.format("You have leveled up to level: %.0f", level));
+        return (String.format(MC_HDR + "You have leveled up to level: %.0f", level));
     }
 
     public static final String MSG_CHUNK_PURCHASE = MC_HDR + "You have purchased a chunk!";
     public static final String MSG_CHUNK_ACCESS = MC_HDR + "You can't access this chunk!";
 
     public static String MSG_XP_GAIN(Double xpGain) {
-        return (String.format("You gained: %.0f", xpGain));
+        return (String.format(MC_HDR + "You gained: %.0f", xpGain));
     }
 
     public static String MSG_MERGE_BLOCKS(String blockName, Integer value, Recipe recipe) {
-        return (String.format("Merged %s into %d %s",
+        return (String.format(MC_HDR + "Merged %s into %d %s",
                 blockName.toLowerCase().replace("_", " "),
                 value,
                 recipe.getMerge_to().toString().toLowerCase().replace("_", " ")
