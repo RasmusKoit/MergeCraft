@@ -2,6 +2,7 @@ package eu.ialbhost.mergecraft;
 
 import eu.ialbhost.mergecraft.commands.MCCommand;
 import eu.ialbhost.mergecraft.commands.PointsCommand;
+import eu.ialbhost.mergecraft.database.SqlDAO;
 import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
@@ -24,6 +25,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static eu.ialbhost.mergecraft.Text.*;
+
 
 public class MergeCraft extends JavaPlugin {
     private final Logger log = this.getLogger();
@@ -31,6 +34,7 @@ public class MergeCraft extends JavaPlugin {
     private final Set<Recipe> recipes = new HashSet<>();
     private final List<String> mergeAmounts = new ArrayList<>();
     private FileConfiguration recipeConfig;
+    private static MergeCraft instance;
 
 
     @Override
@@ -40,8 +44,13 @@ public class MergeCraft extends JavaPlugin {
 
     }
 
+    public static MergeCraft getInstance() {
+        return instance;
+    }
+
     @Override
     public void onEnable() {
+        instance = this;
         reloadConfigs();
         initializeDB();
         loadRecipes();
@@ -67,8 +76,8 @@ public class MergeCraft extends JavaPlugin {
                     MULTIPLIER double
                 )""";
         if (!this.getConfig().getBoolean("sql.use")) {
-            log.log(Level.SEVERE, "You need to configure and use MySQL access in order to use this plugin!");
-            log.log(Level.SEVERE, "Config is found in config.yml. This error is caused by mysql.use being false");
+            log.log(Level.SEVERE, MSG_SQL_ERROR_CONFIGURE);
+            log.log(Level.SEVERE, MSG_SQL_ERROR_CONFIGURE_USE);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -107,7 +116,6 @@ public class MergeCraft extends JavaPlugin {
             }
         }
         mergeAmounts.addAll(recipeConfig.getStringList("amounts"));
-        log.log(Level.INFO, "Total loaded recipe size: " + recipes.size());
 
     }
 
@@ -122,7 +130,7 @@ public class MergeCraft extends JavaPlugin {
         this.recipeConfig = YamlConfiguration.loadConfiguration(recipesConfigFile);
         InputStream config = this.getResource("recipes.yml");
         if (config == null) {
-            log.log(Level.SEVERE, "Error loading default config from plugin, disabling plugin");
+            log.log(Level.SEVERE, MSG_ERROR_LOAD_CONFIG);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -131,14 +139,15 @@ public class MergeCraft extends JavaPlugin {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
             this.recipeConfig.setDefaults(defConfig);
         } catch (IOException exception) {
-            log.log(Level.SEVERE, "Error loading config", exception);
+            log.log(Level.SEVERE, MSG_ERROR_LOAD_CONFIG, exception);
+            getServer().getPluginManager().disablePlugin(this);
         }
     }
 
     private void registerCommand(String name, CommandExecutor executor) {
         PluginCommand command = this.getCommand(name);
         if (command == null) {
-            log.log(Level.WARNING, "This command: " + name + " is not found in plugin.yml");
+            log.log(Level.WARNING, msgWarningCmdNotFound(name));
             return;
         }
         command.setExecutor(executor);
@@ -150,7 +159,7 @@ public class MergeCraft extends JavaPlugin {
     @SuppressWarnings("unused")
     public boolean checkPlayer(CommandSender sender) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Cannot execute that command, you need to be a player!");
+            sender.sendMessage(MSG_PLAYER_ONLY);
             return true;
         }
 

@@ -22,6 +22,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 
+import static eu.ialbhost.mergecraft.Permissions.PERM_BONEMEAL_USE;
+import static eu.ialbhost.mergecraft.Text.*;
+
 
 public final class PlayerListener implements Listener {
     private final MergeCraft plugin;
@@ -43,7 +46,7 @@ public final class PlayerListener implements Listener {
             if (!user.hasChunk(toLocation.getChunk())) {
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - this.timeMs >= 5000) {
-                    player.sendMessage("You CANT access this chunk");
+                    player.sendMessage(MSG_CHUNK_ACCESS);
                     setTimestamp(currentTime);
                     Hologram hologram = user.getHologram();
                     if (hologram != null) {
@@ -60,7 +63,7 @@ public final class PlayerListener implements Listener {
                         hologram.appendTextLine("Click me to purchase").setTouchHandler(p -> p.performCommand("mc buy chunk"));
                         hologram.appendTextLine("or").setTouchHandler(p -> p.performCommand("mc buy chunk"));
                         hologram.appendTextLine("/mc buy chunk").setTouchHandler(p -> p.performCommand("mc buy chunk"));
-                        hologram.appendTextLine("Cost: " + (user.getChunks().size() * 1000) + " points")
+                        hologram.appendTextLine("Cost: " + (user.getChunks().size() * 200) + " points")
                                 .setTouchHandler(p -> p.performCommand("mc buy chunk"));
 
                         hologram.appendTextLine("...");
@@ -84,14 +87,14 @@ public final class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerClick(PlayerInteractEvent event) {
-        if (!event.getPlayer().hasPermission("mergecraft.use.bonemeal")) {
+        if (!event.getPlayer().hasPermission(PERM_BONEMEAL_USE)) {
             if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 Player player = event.getPlayer();
                 if (player.getInventory().getItemInMainHand().getType().equals(Material.BONE_MEAL)) {
-                    event.getPlayer().sendMessage("Cant use bonemeal");
+                    event.getPlayer().sendMessage(MSG_NO_BONEMEAL);
                     event.setCancelled(true);
                 } else if (player.getInventory().getItemInOffHand().getType().equals(Material.BONE_MEAL)) {
-                    event.getPlayer().sendMessage("Cant use bonemeal");
+                    event.getPlayer().sendMessage(MSG_NO_BONEMEAL);
                     event.setCancelled(true);
                 }
             }
@@ -110,8 +113,8 @@ public final class PlayerListener implements Listener {
                 user = new User(player);
                 user.initSQLUser();
             } catch (SQLException exception) {
-                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "SQL Exception: User initialization failed");
-                plugin.getLogger().log(Level.SEVERE, "User initialization failed", exception);
+                event.disallow(PlayerLoginEvent.Result.KICK_OTHER, MC_HDR + MSG_SQL_EXCEPTION_USER_INIT);
+                plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_USER_INIT, exception);
             }
         }
         plugin.addUser(user);
@@ -131,8 +134,8 @@ public final class PlayerListener implements Listener {
             try {
                 user.setSQLChunks(chunkSet);
             } catch (SQLException | NoSuchElementException exception) {
-                player.kickPlayer("User initialization failed, please try again");
-                plugin.getLogger().log(Level.SEVERE, "User initialization failed, setting chunks", exception);
+                player.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_USER_INIT);
+                plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_USER_INIT, exception);
             }
 
         }

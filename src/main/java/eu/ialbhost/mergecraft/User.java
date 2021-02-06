@@ -2,6 +2,7 @@ package eu.ialbhost.mergecraft;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.google.gson.Gson;
+import eu.ialbhost.mergecraft.database.SqlDAO;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
@@ -12,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
+
+import static eu.ialbhost.mergecraft.Text.*;
 
 public class User {
     private final static Gson GSON = new Gson();
@@ -55,8 +58,8 @@ public class User {
             }
             rs.close();
         } catch (SQLException exception) {
-            player.kickPlayer("[MergeCraft] SQL Exception: Get user query failed");
-            player.getServer().getLogger().log(Level.SEVERE, "[MergeCraft] SQL Exception while searhing for user", exception);
+            player.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY);
+            MergeCraft.getInstance().getLogger().log(Level.SEVERE, MC_HDR + MSG_SQL_EXCEPTION_USER_QUERY, exception);
         }
         return user;
     }
@@ -224,8 +227,10 @@ public class User {
             newExpNeeded = exp.calcExperienceNeeded(level);
             if (experience - newExpNeeded < 0) break;
             experience = experience - newExpNeeded;
+
         }
         if (level != getLevel()) {
+            getPlayer().sendMessage(msgLevelUp(level));
             setSQLNumber(level, "LEVEL");
             setSQLNumber(exp.calcExperienceNeeded(level), "NEEDED_EXP");
             setLevel(level);
@@ -252,7 +257,9 @@ public class User {
     }
 
     public void rmHologram() {
-        this.hologram.delete();
-        this.hologram = null;
+        if (this.hologram != null) {
+            this.hologram.delete();
+            this.hologram = null;
+        }
     }
 }
