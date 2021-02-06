@@ -69,7 +69,7 @@ public class BlockMergeListener implements Listener {
                 mergeIfNeeded(placedBlock, event.getPlayer());
             } catch (SQLException exception) {
                 event.getPlayer().kickPlayer("[MergeCraft] SQL Exception: Failed merging blocks");
-                event.getPlayer().getServer().getLogger().log(Level.SEVERE, "Failed placing blocks", exception);
+                plugin.getLogger().log(Level.SEVERE, "Failed placing blocks", exception);
             }
         }
     }
