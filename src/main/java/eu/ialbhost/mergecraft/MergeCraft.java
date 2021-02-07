@@ -7,6 +7,7 @@ import eu.ialbhost.mergecraft.listeners.BlockInteractListener;
 import eu.ialbhost.mergecraft.listeners.PacketListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,6 +37,7 @@ public class MergeCraft extends JavaPlugin {
     private final List<String> mergeAmounts = new ArrayList<>();
     private FileConfiguration recipeConfig;
     private static MergeCraft instance;
+    private final Set<Chunk> renderedChunks = new HashSet<>();
 
 
     @Override
@@ -231,5 +233,17 @@ public class MergeCraft extends JavaPlugin {
 
     public List<String> getMergeAmounts() {
         return this.mergeAmounts;
+    }
+
+    public Set<Chunk> getRenderedChunks() {
+        return renderedChunks;
+    }
+
+    public void addRenderedChunks(Set<Chunk> moreChunks) {
+        this.renderedChunks.addAll(moreChunks);
+    }
+
+    public void removeRenderedChunks(Set<Chunk> lessChunks) {
+        this.renderedChunks.removeAll(lessChunks);
     }
 }

@@ -264,6 +264,7 @@ public class User {
             newChunks.add(world.getChunkAt(x, z + 1));
         }
         this.chunksToRender = newChunks;
+        MergeCraft.getInstance().addRenderedChunks(newChunks);
     }
 
     public void addChunkToChunksToRender() {

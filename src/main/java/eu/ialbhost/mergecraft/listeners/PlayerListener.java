@@ -140,7 +140,7 @@ public final class PlayerListener implements Listener {
     public void onServerLeave(PlayerQuitEvent event) {
         User user = plugin.matchUser(event.getPlayer());
         user.rmHologram();
-
+        plugin.removeRenderedChunks(user.getChunksToRender());
         plugin.removeUser(user);
     }
 }
