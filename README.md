@@ -26,6 +26,10 @@ Stop the server and edit plugins `config.yml` fill out the mysql information and
 
 That's it!
 
+### Configuring
+
+`recipes.yml` & `config.yml`
+
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see
