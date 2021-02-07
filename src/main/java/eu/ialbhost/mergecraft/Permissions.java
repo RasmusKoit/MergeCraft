@@ -13,8 +13,4 @@ public final class Permissions {
     public static final String PERM_MC_SHOW = "mergecraft.mc.show";
     public static final String PERM_MC_SHOW_OTHER = "mergecraft.mc.show.other";
     public static final String PERM_MC_SHOP = "mergecraft.mc.shop";
-
-
-
-
 }

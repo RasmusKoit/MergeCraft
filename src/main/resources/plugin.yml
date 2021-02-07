@@ -23,21 +23,48 @@ commands:
 permissions:
   mergecraft.points:
     description: Allows the player to use points commands
-    default: true
     children:
       mergecraft.points.use: true
       mergecraft.points.give: true
       mergecraft.points.show: true
   mergecraft.points.use:
     description: Allows the player to use /points command
+    default: true
   mergecraft.points.give:
     description: Allows the player to give points away to others
+    default: true
   mergecraft.points.show:
     description: Allows the player to check other player points
+    default: op
 
   mergecraft.use.bonemeal:
     description: Allows the player to use bonemeal
     default: op
+
+  mergecraft.mc:
+    description: Allows the player to use /mergecraft or /mc commands
+    children:
+      mergecraft.mc.use: true
+      mergecraft.mc.chunk: true
+      mergecraft.mc.show: true
+      mergecraft.mc.show.other: true
+      mergecraft.mc.shop: true
+  mergecraft.mc.use:
+    description: Allows the player to use /mc command
+    default: true
+  mergecraft.mc.chunk:
+    description: Allows the player to buy chunks
+    default: true
+  mergecraft.mc.show:
+    description: Allows the player to check their stats /mc show stats
+    default: true
+  mergecraft.mc.show.other:
+    description: Allows the player to check others stats /mc show stats <name>
+    default: op
+  mergecraft.mc.shop:
+    description: Allows the player to use /mc shop
+    default: true
+
 
   mergecraft.*:
     description: Gives access to all MergeCraft permissions
@@ -45,5 +72,7 @@ permissions:
     children:
       mergecraft.points: true
       mergecraft.use.bonemeal: true
+      mergecraft.mc: true
 depend:
   - HolographicDisplays
+  - ProtocolLib

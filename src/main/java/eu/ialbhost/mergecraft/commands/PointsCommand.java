@@ -35,15 +35,6 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
         Player targetPlayer;
         User targetUser;
         double amount;
-        /*
-
-          /points [ cmd ][ <user> ][ amount ]
-          /points
-          /points  show     user
-          /points  give     user     100.0
-
-        */
-
 
         if (!sender.hasPermission(PERM_POINTS_USE)) {
             sender.sendMessage(MSG_NO_PERM);
@@ -95,7 +86,7 @@ public class PointsCommand implements TabCompleter, CommandExecutor {
                         sender.sendMessage(MSG_NEG_NUMBER);
                         return false;
                     }
-                    if (user.hasPoints(amount)) {
+                    if (!user.hasPoints(amount)) {
                         sender.sendMessage(MSG_NO_POINTS);
                         return true;
                     }

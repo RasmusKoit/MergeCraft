@@ -4,8 +4,6 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 
 public class ChunkData {
-    private final int x;
-    private final int z;
     private final static ChunkData WEST = new ChunkData(8, 14);
     private final static ChunkData EAST = new ChunkData(8, 2);
     private final static ChunkData SOUTH = new ChunkData(14, 8);
@@ -14,7 +12,6 @@ public class ChunkData {
     private final static ChunkData SOUTHEAST = new ChunkData(14, 2);
     private final static ChunkData NORTHWEST = new ChunkData(2, 14);
     private final static ChunkData NORTHEAST = new ChunkData(2, 2);
-
     private final static ChunkData EAST_DIR = new ChunkData(0, -1);
     private final static ChunkData WEST_DIR = new ChunkData(0, 1);
     private final static ChunkData NORTH_DIR = new ChunkData(-1, 0);
@@ -23,15 +20,13 @@ public class ChunkData {
     private final static ChunkData SOUTHEAST_DIR = new ChunkData(1, -1);
     private final static ChunkData NORTHWEST_DIR = new ChunkData(-1, 1);
     private final static ChunkData NORTHEAST_DIR = new ChunkData(-1, -1);
+    private final int x;
+    private final int z;
 
 
     public ChunkData(int x, int z) {
         this.x = x;
         this.z = z;
-    }
-
-    public Chunk toChunk(World world) {
-        return world.getChunkAt(x, z);
     }
 
     public static ChunkData getDirection(ChunkData fromChunk, ChunkData toChunk) {
@@ -54,6 +49,10 @@ public class ChunkData {
             return NORTHEAST;
         }
         return null;
+    }
+
+    public Chunk toChunk(World world) {
+        return world.getChunkAt(x, z);
     }
 
     public int getX() {
