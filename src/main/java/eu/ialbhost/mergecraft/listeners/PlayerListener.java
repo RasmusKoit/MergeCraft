@@ -106,8 +106,6 @@ public final class PlayerListener implements Listener {
         //Initialize player
         Player player = event.getPlayer();
         User user = User.getSQLUser(player);
-        plugin.getLogger().log(Level.INFO, "%s: chunk is %s",
-                new Object[]{player.getDisplayName(), player.getChunk().toString()});
         if (user == null) { // user wasn't found in DB, lets add him to DB
             try {
                 user = new User(player);
@@ -118,10 +116,6 @@ public final class PlayerListener implements Listener {
             }
         }
         plugin.addUser(user);
-
-        plugin.getLogger().log(Level.INFO, "%s: chunk is %s",
-                new Object[]{player.getDisplayName(), player.getChunk().toString()});
-
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -133,6 +127,7 @@ public final class PlayerListener implements Listener {
             chunkSet.add(event.getPlayer().getChunk());
             try {
                 user.setSQLChunks(chunkSet);
+                user.calculateChunksToRender();
             } catch (SQLException | NoSuchElementException exception) {
                 player.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_USER_INIT);
                 plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_USER_INIT, exception);
@@ -145,7 +140,7 @@ public final class PlayerListener implements Listener {
     public void onServerLeave(PlayerQuitEvent event) {
         User user = plugin.matchUser(event.getPlayer());
         user.rmHologram();
-
+        plugin.removeRenderedChunks(user.getChunksToRender());
         plugin.removeUser(user);
     }
 }

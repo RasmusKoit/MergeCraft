@@ -13,6 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import java.sql.SQLException;
@@ -22,13 +23,13 @@ import java.util.stream.Collectors;
 
 import static eu.ialbhost.mergecraft.Text.*;
 
-public class BlockMergeListener implements Listener {
+public class BlockInteractListener implements Listener {
     private static final Set<BlockFace> DIRECTIONS = Set.of(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
 
     private final MergeCraft plugin;
     private final Experience exp = new Experience();
 
-    public BlockMergeListener(MergeCraft plugin) {
+    public BlockInteractListener(MergeCraft plugin) {
         this.plugin = plugin;
     }
 
@@ -64,6 +65,14 @@ public class BlockMergeListener implements Listener {
     }
 
     @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        Block brokenBlock = event.getBlock();
+        if (!plugin.matchUser(event.getPlayer()).hasChunk(brokenBlock.getChunk())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Block placedBlock = event.getBlock();
         if (plugin.hasRecipe(placedBlock.getType())) {
@@ -73,6 +82,9 @@ public class BlockMergeListener implements Listener {
                 event.getPlayer().kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_MERGE_BLOCKS);
                 plugin.getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_MERGE_BLOCKS, exception);
             }
+        }
+        if (!plugin.matchUser(event.getPlayer()).hasChunk(placedBlock.getChunk())) {
+            event.setCancelled(true);
         }
     }
 

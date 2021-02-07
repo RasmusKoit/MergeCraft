@@ -2,7 +2,10 @@ package eu.ialbhost.mergecraft.commands;
 
 import eu.ialbhost.mergecraft.MergeCraft;
 import eu.ialbhost.mergecraft.User;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -80,6 +83,8 @@ public class MCCommand implements TabCompleter, CommandExecutor {
                                 user.setSQLChunks(chunkSet);
                                 user.setSQLNumber(user.getMultiplier() + 0.01, "MULTIPLIER");
                                 sender.sendMessage(MSG_CHUNK_PURCHASE);
+                                user.addChunkToChunksToRender();
+                                refreshWorldByTP(user);
                                 user.rmHologram();
                                 user.setActiveChunk(null);
                                 return true;
@@ -126,6 +131,19 @@ public class MCCommand implements TabCompleter, CommandExecutor {
     public void showStats(User user, CommandSender sender) {
         sender.sendMessage(msgMCStats(user));
 
+    }
+
+    public void refreshWorldByTP(User user) {
+        List<World> worlds = Bukkit.getWorlds();
+        World randomWorld = worlds.stream()
+                .filter(world -> world != user.getPlayer().getWorld())
+                .findFirst().orElse(null);
+        if (randomWorld != null) {
+            Location randomLoc = randomWorld.getSpawnLocation();
+            Location currentLoc = user.getPlayer().getLocation();
+            user.getPlayer().teleport(randomLoc);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> user.getPlayer().teleport(currentLoc), 1);
+        }
     }
 
     public List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String alias, @Nonnull String[] args) {

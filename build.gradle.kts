@@ -12,6 +12,7 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://jitpack.io")
     maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://repo.dmulloy2.net/nexus/repository/public/")
 }
 
 
@@ -29,7 +30,7 @@ dependencies {
 
     implementation("net.kyori:adventure-api:4.4.0")
     implementation("net.kyori:adventure-platform-bukkit:4.0.0-SNAPSHOT")
-
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.5.0")
 }
 
 val shadowJar by tasks.getting(ShadowJar::class) {
