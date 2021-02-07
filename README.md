@@ -26,6 +26,10 @@ Stop the server and edit plugins `config.yml` fill out the mysql information and
 
 That's it!
 
+### Configuring
+
+`recipes.yml` & `config.yml`
+
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see
@@ -35,9 +39,10 @@ the [tags on this repository](https://github.com/RasmusKoit/MergeCraft/tags).
 
 * **[Rasmus Koit](https://github.com/RasmusKoit)** - *Initial work*
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/RasmusKoit/MergeCraft/graphs/contributors) who participated in
+this project.
 
 ## Acknowledgments
 
-* **[Mikroskeem](https://github.com/mikroskeem)** - *Code reviews and suggestions on how to untangle this mess of an
+* **[mikroskeem](https://github.com/mikroskeem)** - *Code reviews and suggestions on how to untangle this mess of an
   idea* 
