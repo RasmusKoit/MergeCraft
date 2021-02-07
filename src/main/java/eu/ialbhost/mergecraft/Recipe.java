@@ -13,7 +13,6 @@ public class Recipe {
         this.exp = exp;
     }
 
-
     public Material getMerge_from() {
         return merge_from;
     }

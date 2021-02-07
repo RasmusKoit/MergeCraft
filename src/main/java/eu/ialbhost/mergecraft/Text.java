@@ -48,7 +48,7 @@ public class Text {
     }
 
     public static String msgMergeDragonEggs(User user) {
-        return String.format(MC_HDR + "You have merged dragons! Your multiplier has been increased to: %.2f", user.getMultiplier());
+        return MC_HDR + String.format("You have merged dragons! Your multiplier has been increased to: %.2f", user.getMultiplier());
     }
 
     public static String msgWarningCmdNotFound(String name) {
@@ -60,15 +60,15 @@ public class Text {
     }
 
     public static String msgPointsReceived(Double amount, Player player) {
-        return MC_HDR + player.getDisplayName() + " has sent you " + amount + " points";
+        return MC_HDR + String.format("%s has sent you %.0f points", player.getDisplayName(), amount);
     }
 
     public static String msgPointsShowOther(User user) {
-        return MC_HDR + user.getPlayer().getDisplayName() + " has total of: " + user.getPoints() + " points";
+        return MC_HDR + String.format("%s has total of: %f points", user.getPlayer().getDisplayName(), user.getPoints());
     }
 
     public static String msgPointsShow(User user) {
-        return MC_HDR + "You have total of: " + user.getPoints() + " points";
+        return MC_HDR + String.format("You have total of: %.0f points", user.getPoints());
     }
 
     public static String msgMCStats(User user) {

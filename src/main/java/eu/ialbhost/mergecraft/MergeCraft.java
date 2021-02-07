@@ -3,7 +3,8 @@ package eu.ialbhost.mergecraft;
 import eu.ialbhost.mergecraft.commands.MCCommand;
 import eu.ialbhost.mergecraft.commands.PointsCommand;
 import eu.ialbhost.mergecraft.database.SqlDAO;
-import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
+import eu.ialbhost.mergecraft.listeners.BlockInteractListener;
+import eu.ialbhost.mergecraft.listeners.PacketListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
 import org.bukkit.Material;
@@ -41,6 +42,7 @@ public class MergeCraft extends JavaPlugin {
     public void onDisable() {
         log.log(Level.INFO, "Disabled version %s", getDescription().getVersion());
         SqlDAO.closeConnection();
+        users.clear();
 
     }
 
@@ -56,12 +58,28 @@ public class MergeCraft extends JavaPlugin {
         loadRecipes();
         new PacketListener(this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlockInteractListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
         registerCommand("points", new PointsCommand(this));
         registerCommand("mergecraft", new MCCommand(this));
+        initializeOnlineUsers();
 
+    }
 
+    private void initializeOnlineUsers() {
+        for (Player player : getServer().getOnlinePlayers()) {
+            User user = User.getSQLUser(player);
+            if (user == null) { // user wasn't found in DB, lets add him to DB
+                try {
+                    user = new User(player);
+                    user.initSQLUser();
+                } catch (SQLException exception) {
+                    player.kickPlayer(MC_HDR + MSG_SQL_EXCEPTION_USER_INIT);
+                    getLogger().log(Level.SEVERE, MSG_SQL_EXCEPTION_USER_INIT, exception);
+                }
+            }
+            addUser(user);
+        }
     }
 
     private void initializeDB() {
