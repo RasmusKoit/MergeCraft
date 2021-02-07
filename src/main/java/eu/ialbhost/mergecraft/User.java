@@ -4,6 +4,7 @@ import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.google.gson.Gson;
 import eu.ialbhost.mergecraft.database.SqlDAO;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
@@ -23,6 +24,7 @@ public class User {
     private final Player player;
     private Double points;
     private Set<Chunk> chunks;
+    private Set<Chunk> chunksToRender;
     private Double level;
     private Double currentExp;
     private Double neededExp;
@@ -143,6 +145,10 @@ public class User {
         this.chunks = chunks;
     }
 
+    public Set<Chunk> getChunksToRender() {
+        return chunksToRender;
+    }
+
     public void populate(ResultSet rs, Player player) throws SQLException {
         setPoints(rs.getDouble("POINTS"));
         setLevel(rs.getDouble("LEVEL"));
@@ -156,6 +162,7 @@ public class User {
                 chunkSet.add(data.toChunk(player.getWorld()));
             }
             setChunks(chunkSet);
+            calculateChunksToRender();
         }
 
     }
@@ -199,7 +206,11 @@ public class User {
         }
     }
 
+    public boolean shouldRender(Chunk chunk) {
+        return getChunksToRender().contains(chunk);
+    }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasChunk(Chunk chunk) {
         return getChunks().contains(chunk);
 
@@ -238,6 +249,33 @@ public class User {
         }
         setSQLNumber(experience, "CURRENT_EXP");
 
+    }
+
+    public void calculateChunksToRender() {
+        Set<Chunk> newChunks = new HashSet<>(getChunks().size());
+        newChunks.addAll(getChunks());
+        World world = getChunks().iterator().next().getWorld();
+        for (Chunk chunk : getChunks()) {
+            int x = chunk.getX();
+            int z = chunk.getZ();
+            newChunks.add(world.getChunkAt(x - 1, z));
+            newChunks.add(world.getChunkAt(x + 1, z));
+            newChunks.add(world.getChunkAt(x, z - 1));
+            newChunks.add(world.getChunkAt(x, z + 1));
+        }
+        this.chunksToRender = newChunks;
+    }
+
+    public void addChunkToChunksToRender() {
+        Set<Chunk> newChunks = new HashSet<>(4);
+        int x = getActiveChunk().getX();
+        int z = getActiveChunk().getZ();
+        World world = getActiveChunk().getWorld();
+        newChunks.add(world.getChunkAt(x - 1, z));
+        newChunks.add(world.getChunkAt(x + 1, z));
+        newChunks.add(world.getChunkAt(x, z - 1));
+        newChunks.add(world.getChunkAt(x, z + 1));
+        this.chunksToRender.addAll(newChunks);
     }
 
     public Chunk getActiveChunk() {

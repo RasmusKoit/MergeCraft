@@ -54,6 +54,7 @@ public class MergeCraft extends JavaPlugin {
         reloadConfigs();
         initializeDB();
         loadRecipes();
+        new PacketListener(this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
@@ -193,6 +194,9 @@ public class MergeCraft extends JavaPlugin {
                 : players.get(0);
     }
 
+    public Set<User> getUsers() {
+        return users;
+    }
 
     public boolean hasRecipe(Material type) {
         return this.recipes.stream().anyMatch(p -> p.getMerge_from() == type);
