@@ -3,9 +3,11 @@ package eu.ialbhost.mergecraft;
 import eu.ialbhost.mergecraft.commands.MCCommand;
 import eu.ialbhost.mergecraft.commands.PointsCommand;
 import eu.ialbhost.mergecraft.database.SqlDAO;
-import eu.ialbhost.mergecraft.listeners.BlockMergeListener;
+import eu.ialbhost.mergecraft.listeners.BlockInteractListener;
+import eu.ialbhost.mergecraft.listeners.PacketListener;
 import eu.ialbhost.mergecraft.listeners.PlayerListener;
 import eu.ialbhost.mergecraft.listeners.WorldListener;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -35,6 +37,7 @@ public class MergeCraft extends JavaPlugin {
     private final List<String> mergeAmounts = new ArrayList<>();
     private FileConfiguration recipeConfig;
     private static MergeCraft instance;
+    private final Set<Chunk> renderedChunks = new HashSet<>();
 
 
     @Override
@@ -56,7 +59,7 @@ public class MergeCraft extends JavaPlugin {
         loadRecipes();
         new PacketListener(this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new BlockMergeListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlockInteractListener(this), this);
         getServer().getPluginManager().registerEvents(new WorldListener(this), this);
         registerCommand("points", new PointsCommand(this));
         registerCommand("mergecraft", new MCCommand(this));
@@ -213,5 +216,17 @@ public class MergeCraft extends JavaPlugin {
 
     public List<String> getMergeAmounts() {
         return this.mergeAmounts;
+    }
+
+    public Set<Chunk> getRenderedChunks() {
+        return renderedChunks;
+    }
+
+    public void addRenderedChunks(Set<Chunk> moreChunks) {
+        this.renderedChunks.addAll(moreChunks);
+    }
+
+    public void removeRenderedChunks(Set<Chunk> lessChunks) {
+        this.renderedChunks.removeAll(lessChunks);
     }
 }
