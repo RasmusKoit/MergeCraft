@@ -94,7 +94,9 @@ public class MergeCraft extends JavaPlugin {
                     LEVEL double,
                     CURRENT_EXP double,
                     NEEDED_EXP double,
-                    MULTIPLIER double
+                    MULTIPLIER double,
+                    MULTIPLIER_START bigint unsigned,
+                    MULTIPLIER_END bigint unsigned
                 )""";
         if (!this.getConfig().getBoolean("sql.use")) {
             log.log(Level.SEVERE, MSG_SQL_ERROR_CONFIGURE);

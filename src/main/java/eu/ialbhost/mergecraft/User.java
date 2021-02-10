@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,13 +32,19 @@ public class User {
     private Double multiplier;
     private Chunk activeChunk;
     private Hologram hologram;
+    private Integer restTime;
+    private Integer sleepTime;
+    private Long multiplierStart;
+    private Long multiplierEnd;
 
 
     public User(Player player) {
-        this(player, 0.0, null, 1.0, 0.0, 100.0, 1.0);
+        this(player, 0.0, null, 1.0, 0.0, 100.0,
+                1.0, System.currentTimeMillis(), System.currentTimeMillis() + 960000);
     }
 
-    public User(Player player, Double points, Set<Chunk> chunks, Double level, Double currentExp, Double neededExp, Double multiplier) {
+    public User(Player player, Double points, Set<Chunk> chunks, Double level, Double currentExp, Double neededExp,
+                Double multiplier, Long multiplierStart, Long multiplierEnd) {
         this.player = player;
         this.points = points;
         this.chunks = chunks;
@@ -45,6 +52,8 @@ public class User {
         this.currentExp = currentExp;
         this.neededExp = neededExp;
         this.multiplier = multiplier;
+        this.multiplierStart = multiplierStart;
+        this.multiplierEnd = multiplierEnd;
     }
 
     public static User getSQLUser(Player player) {
@@ -91,6 +100,22 @@ public class User {
             pst.setDouble(7, getMultiplier());
             pst.executeUpdate();
         }
+    }
+
+    public Long getMultiplierStart() {
+        return multiplierStart;
+    }
+
+    public void setMultiplierStart(Long multiplierStart) {
+        this.multiplierStart = multiplierStart;
+    }
+
+    public Long getMultiplierEnd() {
+        return multiplierEnd;
+    }
+
+    public void setMultiplierEnd(Long multiplierEnd) {
+        this.multiplierEnd = multiplierEnd;
     }
 
     public Player getPlayer() {
@@ -155,6 +180,8 @@ public class User {
         setCurrentExp(rs.getDouble("CURRENT_EXP"));
         setNeededExp(rs.getDouble("NEEDED_EXP"));
         setMultiplier(rs.getDouble("MULTIPLIER"));
+        setMultiplierStart(rs.getLong("MULTIPLIER_START"));
+        setMultiplierEnd(rs.getLong("MULTIPLIER_END"));
         HashSet<Chunk> chunkSet = new HashSet<>();
         ChunkData[] chunkData = GSON.fromJson(rs.getString("CHUNKS"), (Type) ChunkData[].class);
         if (chunkData != null) {
@@ -179,6 +206,29 @@ public class User {
             pst.executeUpdate();
             pickNumberSetter(col, amount);
         }
+    }
+
+    public boolean updateTimestamp() {
+        long currentTimeMs = System.currentTimeMillis();
+        if (currentTimeMs > getMultiplierEnd())
+    }
+
+    public void setSQLTimestamp(Long timestampStart, Long timestampEnd) throws SQLException{
+        String sqlString = """
+                UPDATE USER SET
+                MULTIPLIER_START = ?,
+                MULTIPLIER_END = ?
+                WHERE UUID=?""";
+        try (Connection con = SqlDAO.getConnection();
+             PreparedStatement pst = con.prepareStatement(sqlString)) {
+            pst.setLong(1, timestampStart);
+            pst.setLong(2, timestampEnd);
+            pst.setString(3, getPlayer().getUniqueId().toString());
+            pst.executeUpdate();
+            setMultiplierStart(timestampStart);
+            setMultiplierEnd(timestampEnd);
+        }
+
     }
 
     public void setSQLChunks(Set<Chunk> chunkSet) throws SQLException {

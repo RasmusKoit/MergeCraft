@@ -47,8 +47,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
 }
 tasks["build"].dependsOn(shadowJar)
 
-task<Copy>("copyJar") {
-    from(shadowJar)
-    into(file("C:\\Users\\Rasmus Koit\\Desktop\\mcserver\\plugins\\update"))
-}.dependsOn(shadowJar)
-tasks["build"].finalizedBy("copyJar")
+//task<Copy>("copyJar") {
+//    from(shadowJar)
+//    into(file("C:\\Users\\Rasmus Koit\\Desktop\\mcserver\\plugins\\update"))
+//}.dependsOn(shadowJar)
+//tasks["build"].finalizedBy("copyJar")
